@@ -30,6 +30,14 @@ require("lazy").setup({
     version = false, -- always use the latest git commit
     -- version = "*", -- try installing the latest stable version for plugins that support semver
   },
+  git = {
+    -- 部分克隆 (--filter=blob:none) 只拉 HEAD 所需 blob, 比全量克隆小得多;
+    -- 偶发 "Clone succeeded, but checkout failed" 由 post_install 的重试+restore 兜底。
+    -- 注意别设 filter=false: 那会全量下载整个历史 (copilot.lua 高达数百 MB),
+    -- 在 GitHub 限流的网络下更慢。
+    filter = true,
+    timeout = 600,
+  },
   install = { colorscheme = { "catppuccin", "tokyonight", "habamax" } },
   ui = {
     border = "rounded",
