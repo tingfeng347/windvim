@@ -214,7 +214,7 @@ local function get_nvim_devicons()
   if nvim_devicons then
     return nvim_devicons
   end
-  local root = "/home/tingfeng/.local/share/nvim/site/lazy/nvim-web-devicons"
+  local root = vim.fn.expand("~/.local/share/nvim/site/lazy/nvim-web-devicons")
   vim.opt.rtp:append(root)
   nvim_devicons = assert(loadfile(root .. "/lua/nvim-web-devicons.lua"))()
   nvim_devicons.setup()
