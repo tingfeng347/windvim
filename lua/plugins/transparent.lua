@@ -206,27 +206,18 @@ local function clear_lualine_backgrounds()
   clear_statusline_group("StatusLineNC")
 end
 
--- 使用真实的 nvim-web-devicons (在下方 spec 里安装到 lazy 目录), 以匹配独立
--- nvim 配置的图标。LazyVim 默认用 mini.icons 的 mock 顶替 require("nvim-web-devicons"),
--- 所以这里直接从 lazy 安装目录 loadfile, 绕过 mock; 其余 MiniIcons 界面不受影响。
+-- Load the exact nvim-web-devicons version and palette used by the separate
+-- nvim configuration. This is scoped to Explorer formatting; LazyVim's other
+-- MiniIcons-based surfaces stay untouched.
 local nvim_devicons
 local function get_nvim_devicons()
   if nvim_devicons then
     return nvim_devicons
   end
-  -- 插件尚未安装时 (首次启动) loadfile 会失败, 返回 nil 由调用方回退到 Snacks 图标。
-  local root = vim.fn.stdpath("data") .. "/lazy/nvim-web-devicons"
-  local loader = loadfile(root .. "/lua/nvim-web-devicons.lua")
-  if not loader then
-    return nil
-  end
+  local root = vim.env.HOME .. "/.local/share/nvim/site/lazy/nvim-web-devicons"
   vim.opt.rtp:append(root)
-  local ok, devicons = pcall(loader)
-  if not ok or not devicons then
-    return nil
-  end
-  devicons.setup()
-  nvim_devicons = devicons
+  nvim_devicons = assert(loadfile(root .. "/lua/nvim-web-devicons.lua"))()
+  nvim_devicons.setup()
   return nvim_devicons
 end
 
@@ -242,12 +233,9 @@ local function nvim_tree_format(item, picker)
         part[2] = "SnacksPickerDirectory"
       else
         local name = vim.fn.fnamemodify(item.file, ":t")
-        local devicons = get_nvim_devicons()
-        if devicons then
-          local icon, hl = devicons.get_icon(name, nil, { default = true })
-          part[1] = icon .. " "
-          part[2] = hl
-        end
+        local icon, hl = get_nvim_devicons().get_icon(name, nil, { default = true })
+        part[1] = icon .. " "
+        part[2] = hl
       end
       break
     end
@@ -426,11 +414,6 @@ vim.api.nvim_create_autocmd("BufEnter", {
 make_transparent()
 
 return {
-  {
-    "nvim-tree/nvim-web-devicons",
-    lazy = true,
-    opts = {},
-  },
   {
     "folke/flash.nvim",
     opts = function(_, opts)
