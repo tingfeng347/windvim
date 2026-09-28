@@ -42,12 +42,37 @@ return {
     "folke/snacks.nvim",
     config = function(_, opts)
       require("snacks").setup(opts)
+
+      local D = require("snacks.dashboard").Dashboard
+
+      -- snacks.nvim (checked at 882c996) reaches into the dashboard window
+      -- from its WinResized handler and from D:update without checking that the
+      -- window is still valid and still shows the dashboard buffer. Resizing
+      -- after the dashboard has been replaced (e.g. by opening a file) then
+      -- throws "Invalid window id". Fix it here instead of editing the plugin
+      -- source, so `:Lazy update` keeps working.
+      local function dashboard_active(self)
+        return self.win
+          and vim.api.nvim_win_is_valid(self.win)
+          and vim.api.nvim_win_get_buf(self.win) == self.buf
+      end
+
+      local orig_size = D.size
+      function D.size(self)
+        if not dashboard_active(self) then
+          return self._size or { width = 0, height = 0 }
+        end
+        return orig_size(self)
+      end
+
       -- Adaptive width: shrink the dashboard content so it fits narrow
       -- windows without clipping. Every render recomputes the width from the
       -- current editor width.
-      local D = require("snacks.dashboard").Dashboard
       local orig_update = D.update
       function D.update(self)
+        if not dashboard_active(self) then
+          return
+        end
         self.opts.width = math.max(8, math.min(48, vim.o.columns - 2))
         return orig_update(self)
       end
