@@ -102,7 +102,8 @@ local transparent_groups = {
   "SnacksPickerBoxFooter",
 }
 
--- Keep picker cursor lines transparent, including the active Explorer row.
+-- Picker cursor lines need a quiet surface: with a transparent terminal the
+-- active candidate is otherwise impossible to distinguish from its neighbours.
 local selection_groups = {
   "SnacksPickerInputCursorLine",
   "SnacksPickerPreviewCursorLine",
@@ -131,6 +132,50 @@ local picker_border_groups = {
   "SnacksPickerPreviewBorder",
   "SnacksPickerBoxBorder",
 }
+
+-- Use one neutral, light-grey frame for every floating UI surface.  This keeps
+-- the transparent content while avoiding the previous mixed blue/orange
+-- borders from individual plugins.
+local float_border_groups = {
+  "FloatBorder",
+  "PmenuBorder",
+  "TelescopeBorder",
+  "TelescopePromptBorder",
+  "TelescopeResultsBorder",
+  "TelescopePreviewBorder",
+  "WhichKeyBorder",
+  "MasonHeader",
+  "LazyBorder",
+  "NoicePopupBorder",
+  "SnacksLazyGitBorder",
+}
+
+-- Exception to the transparent floats above: the completion popup is the one
+-- surface that must stay readable. blink.cmp links BlinkCmpMenu to Pmenu (and
+-- BlinkCmpDoc to NormalFloat), both of which are cleared to `bg=NONE` here, so
+-- the wallpaper bleeds through the candidate list. Give the menu, its border
+-- and the documentation window an opaque Catppuccin Mocha surface instead.
+-- The foregrounds are repeated because defining any attribute on a group
+-- replaces its link (Pmenu/NormalFloat are still left transparent below, so
+-- the native right-click menu is unaffected).
+local completion_popup_highlights = {
+  BlinkCmpMenu = { fg = "#9399B3", bg = "#1E1E2E" },
+  BlinkCmpMenuBorder = { fg = "#B8BDC7", bg = "#1E1E2E" },
+  BlinkCmpMenuSelection = { bg = "#45475B", bold = true },
+  BlinkCmpScrollBarGutter = { bg = "#1E1E2E" },
+  BlinkCmpScrollBarThumb = { bg = "#585B70" },
+  BlinkCmpDoc = { fg = "#CDD6F4", bg = "#1E1E2E" },
+  BlinkCmpDocBorder = { fg = "#B8BDC7", bg = "#1E1E2E" },
+  BlinkCmpDocSeparator = { fg = "#585B70", bg = "#1E1E2E" },
+  BlinkCmpSignatureHelp = { fg = "#CDD6F4", bg = "#1E1E2E" },
+  BlinkCmpSignatureHelpBorder = { fg = "#B8BDC7", bg = "#1E1E2E" },
+}
+
+local function set_completion_popup_highlights()
+  for group, highlight in pairs(completion_popup_highlights) do
+    vim.api.nvim_set_hl(0, group, highlight)
+  end
+end
 
 -- Snacks links untracked files (including their filenames) to NonText by
 -- default. NonText is intentionally very dim in this colorscheme, which makes
@@ -206,27 +251,18 @@ local function clear_lualine_backgrounds()
   clear_statusline_group("StatusLineNC")
 end
 
--- 使用真实的 nvim-web-devicons (在下方 spec 里安装到 lazy 目录), 以匹配独立
--- nvim 配置的图标。LazyVim 默认用 mini.icons 的 mock 顶替 require("nvim-web-devicons"),
--- 所以这里直接从 lazy 安装目录 loadfile, 绕过 mock; 其余 MiniIcons 界面不受影响。
+-- Load the exact nvim-web-devicons version and palette used by the separate
+-- nvim configuration. This is scoped to Explorer formatting; LazyVim's other
+-- MiniIcons-based surfaces stay untouched.
 local nvim_devicons
 local function get_nvim_devicons()
   if nvim_devicons then
     return nvim_devicons
   end
-  -- 插件尚未安装时 (首次启动) loadfile 会失败, 返回 nil 由调用方回退到 Snacks 图标。
-  local root = vim.fn.stdpath("data") .. "/lazy/nvim-web-devicons"
-  local loader = loadfile(root .. "/lua/nvim-web-devicons.lua")
-  if not loader then
-    return nil
-  end
+  local root = vim.env.HOME .. "/.local/share/nvim/site/lazy/nvim-web-devicons"
   vim.opt.rtp:append(root)
-  local ok, devicons = pcall(loader)
-  if not ok or not devicons then
-    return nil
-  end
-  devicons.setup()
-  nvim_devicons = devicons
+  nvim_devicons = assert(loadfile(root .. "/lua/nvim-web-devicons.lua"))()
+  nvim_devicons.setup()
   return nvim_devicons
 end
 
@@ -242,12 +278,9 @@ local function nvim_tree_format(item, picker)
         part[2] = "SnacksPickerDirectory"
       else
         local name = vim.fn.fnamemodify(item.file, ":t")
-        local devicons = get_nvim_devicons()
-        if devicons then
-          local icon, hl = devicons.get_icon(name, nil, { default = true })
-          part[1] = icon .. " "
-          part[2] = hl
-        end
+        local icon, hl = get_nvim_devicons().get_icon(name, nil, { default = true })
+        part[1] = icon .. " "
+        part[2] = hl
       end
       break
     end
@@ -279,10 +312,11 @@ local function make_transparent()
     -- colorscheme's foreground and font attributes remain intact.
     vim.cmd("highlight " .. group .. " guibg=NONE ctermbg=NONE")
   end
-  -- Default Neovim floats such as Mason inherit FloatBorder. Keep their
-  -- content transparent but give the outer frame the same blue-grey treatment
-  -- as the LazyGit window.
-  vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#5FA8D3", bg = "NONE", blend = 45 })
+  -- Keep all floating content transparent, but use a consistent, restrained
+  -- light-grey frame (similar to Codex's startup panel).
+  for _, group in ipairs(float_border_groups) do
+    vim.api.nvim_set_hl(0, group, { fg = "#B8BDC7", bg = "NONE", blend = 35 })
+  end
   -- Native popup menus are also used for the right-click PopUp menu. Match
   -- the separate nvim config: all non-selected menu cells are genuinely
   -- transparent, including the border and extra-text groups. Leaving either
@@ -295,38 +329,33 @@ local function make_transparent()
   vim.api.nvim_set_hl(0, "PmenuExtraSel", { fg = "#6C7087", bg = "NONE" })
   vim.api.nvim_set_hl(0, "PmenuMatch", { bold = true, bg = "NONE" })
   vim.api.nvim_set_hl(0, "PmenuMatchSel", { bold = true, bg = "NONE" })
-  vim.api.nvim_set_hl(0, "PmenuBorder", { fg = "#45475B", bg = "NONE" })
   vim.api.nvim_set_hl(0, "PmenuSbar", { bg = "NONE" })
   vim.api.nvim_set_hl(0, "PmenuThumb", { bg = "NONE" })
+  -- Keep the completion popup itself opaque (see the table above). This runs
+  -- after the colorscheme has linked BlinkCmpMenu back to the transparent
+  -- Pmenu, and is reapplied by every hook below.
+  set_completion_popup_highlights()
   for _, group in ipairs(selection_groups) do
-    vim.api.nvim_set_hl(0, group, { link = "CursorLine" })
+    vim.api.nvim_set_hl(0, group, { bg = "#45475B", blend = 45 })
   end
-  -- Snacks Explorer renders its file rows through SnacksPickerListCursorLine.
-  -- Link it to the transparent CursorLine so the selected row has no fill.
-  vim.api.nvim_set_hl(0, "SnacksPickerListCursorLine", { link = "CursorLine" })
+  -- Snacks Explorer renders its file rows through this group.
+  vim.api.nvim_set_hl(0, "SnacksPickerListCursorLine", { bg = "#45475B", blend = 45 })
   for _, group in ipairs(picker_accent_groups) do
     vim.api.nvim_set_hl(0, group, { fg = "#5FA8D3", bg = "NONE" })
   end
-  -- Keep the blue Explorer frame, but soften it against the transparent
-  -- terminal background without dimming the title text.
+  -- All picker panes share the same neutral frame as other floating windows.
   for _, group in ipairs(picker_border_groups) do
-    vim.api.nvim_set_hl(0, group, { fg = "#5FA8D3", bg = "NONE", blend = 45 })
+    vim.api.nvim_set_hl(0, group, { fg = "#B8BDC7", bg = "NONE", blend = 35 })
   end
   -- Explorer keeps its hidden input slot above the file list. Hide only that
   -- slot's unused border/title so no rectangular cap appears above the
   -- sidebar separator.
   vim.api.nvim_set_hl(0, "SnacksPickerInputBorder", { fg = "NONE", bg = "NONE" })
   vim.api.nvim_set_hl(0, "SnacksPickerInputTitle", { fg = "NONE", bg = "NONE" })
-  -- The Explorer's right-hand separator is the list border. Use a neutral
-  -- grey with blending so it stays visible over the wallpaper without
-  -- becoming a solid dark rule.
-  vim.api.nvim_set_hl(0, "SnacksPickerListBorder", { fg = "#A6ADC8", bg = "NONE", blend = 65 })
   -- Match the separate nvim configuration's one-cell sidebar separator.
   -- Snacks maps its Explorer separator through SnacksWinSeparator.
   vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#45475B", bg = "NONE" })
   vim.api.nvim_set_hl(0, "SnacksWinSeparator", { fg = "#45475B", bg = "NONE" })
-  -- LazyGit remains transparent, but receives its own visible outer frame.
-  vim.api.nvim_set_hl(0, "SnacksLazyGitBorder", { fg = "#5FA8D3", bg = "NONE", blend = 45 })
   for group, target in pairs(readable_groups) do
     vim.api.nvim_set_hl(0, group, { link = target })
   end
@@ -393,6 +422,16 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
+-- blink.cmp creates its menu window on demand and catppuccin re-links
+-- BlinkCmpMenu to the transparent Pmenu whenever the colorscheme is reloaded.
+-- Reapply the opaque completion surfaces each time the menu opens so they
+-- cannot silently become transparent again.
+vim.api.nvim_create_autocmd("User", {
+  group = transparent_group,
+  pattern = "BlinkCmpMenuOpen",
+  callback = set_completion_popup_highlights,
+})
+
 -- Lualine may create a mode-specific group when switching modes. Clear only
 -- the background again after that group exists, preserving its text colours.
 vim.api.nvim_create_autocmd("ModeChanged", {
@@ -426,11 +465,6 @@ vim.api.nvim_create_autocmd("BufEnter", {
 make_transparent()
 
 return {
-  {
-    "nvim-tree/nvim-web-devicons",
-    lazy = true,
-    opts = {},
-  },
   {
     "folke/flash.nvim",
     opts = function(_, opts)

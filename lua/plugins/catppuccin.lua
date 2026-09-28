@@ -88,6 +88,27 @@ return {
             ["@storageclass.lifetime"] = { fg = cp.maroon, style = { "italic" } },
 
             ["@string.regex"] = { fg = cp.peach, style = {} },
+
+            -- render-markdown must stay transparent too. catppuccin's
+            -- render_markdown integration paints opaque surfaces
+            -- (RenderMarkdownCode -> mantle, RenderMarkdownCodeInline ->
+            -- surface0, RenderMarkdownH*Bg -> darkened heading colours).
+            -- transparent.lua clears those at runtime, but any extra
+            -- catppuccin application (for example when LazyVim re-runs the
+            -- colourscheme function without firing ColorScheme) would bring
+            -- them back. Re-assert transparency in the colourscheme itself so
+            -- it can never regress.
+            RenderMarkdownCode = { bg = cp.none },
+            RenderMarkdownCodeInline = { bg = cp.none },
+            RenderMarkdownCodeBorder = { bg = cp.none },
+            RenderMarkdownCodeInfo = { bg = cp.none },
+            RenderMarkdownCodeFallback = { bg = cp.none },
+            RenderMarkdownH1Bg = { bg = cp.none },
+            RenderMarkdownH2Bg = { bg = cp.none },
+            RenderMarkdownH3Bg = { bg = cp.none },
+            RenderMarkdownH4Bg = { bg = cp.none },
+            RenderMarkdownH5Bg = { bg = cp.none },
+            RenderMarkdownH6Bg = { bg = cp.none },
           }
         end,
       }
