@@ -254,12 +254,16 @@ end
 -- Use the real nvim-web-devicons for Explorer formatting; LazyVim's other
 -- MiniIcons-based surfaces stay untouched. LazyVim installs mini.icons and
 -- registers package.preload["nvim-web-devicons"] as a mock, so require() would
--- hand back the mock even with the real plugin installed. Load the plugin's
--- module directly (loadfile) to bypass it, preferring LazyVim's own copy
--- (installed by the spec below) and falling back to the separate nvim
--- configuration so both stay consistent. Returns nil when neither is present,
--- letting callers keep Snacks' default icons.
-local function load_devicons_from(root)
+-- hand back the mock even with the real plugin installed. Load LazyVim's own
+-- copy of the plugin directly (loadfile) to bypass the mock. When it is not
+-- installed (or fails to load), return nil so callers keep Snacks' default
+-- icons instead of erroring.
+local nvim_devicons
+local function get_nvim_devicons()
+  if nvim_devicons then
+    return nvim_devicons
+  end
+  local root = vim.fn.stdpath("data") .. "/lazy/nvim-web-devicons"
   local loader = loadfile(root .. "/lua/nvim-web-devicons.lua")
   if not loader then
     return nil
@@ -270,25 +274,8 @@ local function load_devicons_from(root)
     return nil
   end
   devicons.setup()
-  return devicons
-end
-
-local nvim_devicons
-local function get_nvim_devicons()
-  if nvim_devicons then
-    return nvim_devicons
-  end
-  local roots = {
-    vim.fn.stdpath("data") .. "/lazy/nvim-web-devicons",
-    vim.env.HOME .. "/.local/share/nvim/site/lazy/nvim-web-devicons",
-  }
-  for _, root in ipairs(roots) do
-    nvim_devicons = load_devicons_from(root)
-    if nvim_devicons then
-      return nvim_devicons
-    end
-  end
-  return nil
+  nvim_devicons = devicons
+  return nvim_devicons
 end
 
 -- Match the local nvim-tree presentation without changing Snacks Explorer's
