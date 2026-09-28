@@ -74,7 +74,27 @@ return {
           return
         end
         self.opts.width = math.max(8, math.min(48, vim.o.columns - 2))
-        return orig_update(self)
+
+        -- On resize snacks re-renders the dashboard and then restores the
+        -- cursor to its previous position without checking it still fits the
+        -- new buffer, which throws "Invalid cursor line: out of range" from
+        -- the VimResized handler. Clamp the cursor while the dashboard renders.
+        local set_cursor = vim.api.nvim_win_set_cursor
+        vim.api.nvim_win_set_cursor = function(win, pos)
+          if win ~= self.win or not vim.api.nvim_win_is_valid(win) then
+            return set_cursor(win, pos)
+          end
+          local buf = vim.api.nvim_win_get_buf(win)
+          local row = math.min(math.max(pos[1], 1), vim.api.nvim_buf_line_count(buf))
+          local line = vim.api.nvim_buf_get_lines(buf, row - 1, row, false)[1] or ""
+          pcall(set_cursor, win, { row, math.min(math.max(pos[2], 0), #line) })
+        end
+
+        local ok, err = pcall(orig_update, self)
+        vim.api.nvim_win_set_cursor = set_cursor
+        if not ok then
+          error(err, 0)
+        end
       end
     end,
     opts = {
