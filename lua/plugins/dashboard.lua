@@ -65,6 +65,51 @@ return {
         return orig_size(self)
       end
 
+      -- Window ids the dashboard has rendered into. Used by the cursor guard
+      -- below to tell "a window that used to show the dashboard" apart from
+      -- "a window id that has nothing to do with us".
+      local dash_wins = {} ---@type table<integer, boolean>
+
+      -- Cursor guard, installed once per session.
+      --
+      -- snacks restores the dashboard cursor from two places - a buffer-local
+      -- CursorMoved handler and D:update (both in update_cursor) - without
+      -- checking that the window it remembers still exists, nor that the
+      -- remembered position still fits the buffer. The handler keeps firing
+      -- from its autocmd after the dashboard window is gone (closing a split
+      -- that was taken away from the dashboard does that, e.g. `/exit` in the
+      -- Codex panel), which is the "Lua callback: ... nvim_win_set_cursor:
+      -- Invalid window id" popup.
+      --
+      -- A patch around a single render cannot catch that call, so the guard
+      -- stays installed for the session:
+      --   * a stale dashboard window is a no-op instead of an error
+      --     (only ids the dashboard actually used are swallowed, so real
+      --     "invalid window" bugs elsewhere still surface)
+      --   * positions for a dashboard buffer are clamped, which also fixes
+      --     the "Invalid cursor line: out of range" seen on VimResized
+      if not vim.g.windvim_dashboard_cursor_guard then
+        vim.g.windvim_dashboard_cursor_guard = true
+        local set_cursor = vim.api.nvim_win_set_cursor
+        ---@param win integer
+        ---@param pos [integer, integer]
+        vim.api.nvim_win_set_cursor = function(win, pos)
+          if not vim.api.nvim_win_is_valid(win) then
+            if dash_wins[win] then
+              return
+            end
+            return set_cursor(win, pos)
+          end
+          local buf = vim.api.nvim_win_get_buf(win)
+          if vim.b[buf].snacks_main then
+            local row = math.min(math.max(pos[1], 1), vim.api.nvim_buf_line_count(buf))
+            local line = vim.api.nvim_buf_get_lines(buf, row - 1, row, false)[1] or ""
+            pos = { row, math.min(math.max(pos[2], 0), #line) }
+          end
+          return set_cursor(win, pos)
+        end
+      end
+
       -- Adaptive width: shrink the dashboard content so it fits narrow
       -- windows without clipping. Every render recomputes the width from the
       -- current editor width.
@@ -73,28 +118,9 @@ return {
         if not dashboard_active(self) then
           return
         end
+        dash_wins[self.win] = true
         self.opts.width = math.max(8, math.min(48, vim.o.columns - 2))
-
-        -- On resize snacks re-renders the dashboard and then restores the
-        -- cursor to its previous position without checking it still fits the
-        -- new buffer, which throws "Invalid cursor line: out of range" from
-        -- the VimResized handler. Clamp the cursor while the dashboard renders.
-        local set_cursor = vim.api.nvim_win_set_cursor
-        vim.api.nvim_win_set_cursor = function(win, pos)
-          if win ~= self.win or not vim.api.nvim_win_is_valid(win) then
-            return set_cursor(win, pos)
-          end
-          local buf = vim.api.nvim_win_get_buf(win)
-          local row = math.min(math.max(pos[1], 1), vim.api.nvim_buf_line_count(buf))
-          local line = vim.api.nvim_buf_get_lines(buf, row - 1, row, false)[1] or ""
-          pcall(set_cursor, win, { row, math.min(math.max(pos[2], 0), #line) })
-        end
-
-        local ok, err = pcall(orig_update, self)
-        vim.api.nvim_win_set_cursor = set_cursor
-        if not ok then
-          error(err, 0)
-        end
+        return orig_update(self)
       end
     end,
     opts = {
