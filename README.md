@@ -41,7 +41,7 @@ WindVim 是基于 [LazyVim](https://github.com/LazyVim/LazyVim) 的个人定制 
 
 > **前置要求**：Neovim ≥ 0.11.2（LuaJIT）、Git、`rsync`。完整依赖见[使用说明](docs/USAGE.md)。
 
-从 GitHub 安装（仓库公开后可用）：
+从 GitHub 安装：
 
 ```bash
 git clone https://github.com/tingfeng347/windvim.git

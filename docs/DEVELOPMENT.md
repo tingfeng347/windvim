@@ -21,7 +21,7 @@ uv run --with pynvim --with pillow python scripts/screenshots.py
 
 ## 源码分发
 
-项目目前仅在本地维护；公开发布后，用户可通过 GitHub 克隆或下载源码包安装。提交改动后，也可以生成包含文档和截图的分享包：
+用户可通过 [GitHub 公开仓库](https://github.com/tingfeng347/windvim) 克隆或下载源码包安装。提交改动后，也可以生成包含文档和截图的分享包：
 
 ```bash
 mkdir -p .dist
@@ -32,14 +32,20 @@ git archive --format=tar.gz --prefix=windvim/ HEAD -o .dist/windvim.tar.gz
 
 ## GitHub 发布
 
-计划仓库：`https://github.com/tingfeng347/windvim`，默认分支 `main`。在 GitHub 创建空仓库后，维护者可在本项目中执行：
+公开仓库：[tingfeng347/windvim](https://github.com/tingfeng347/windvim)，默认分支 `main`。维护者提交并验证改动后推送：
 
 ```bash
-git remote add origin https://github.com/tingfeng347/windvim.git
 git push -u origin main
 ```
 
-README 已按此地址准备克隆安装命令；改用其他账号或仓库名时，一并修改文档中的下载地址。本项目不在本地自动创建仓库或推送。
+README 和使用说明提供此仓库的克隆与源码包安装命令；改用其他账号或仓库名时，一并修改文档中的下载地址。
+
+若首次推送含动图的历史出现 `RPC failed; HTTP 408`，可仅为本仓库增大 HTTP 请求缓冲区后重试；本次发布使用此设置推送成功：
+
+```bash
+git config --local http.postBuffer 52428800
+git push
+```
 
 ## 来源与目录
 

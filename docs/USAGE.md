@@ -2,7 +2,7 @@
 
 [返回首页](../README.md)
 
-支持 Linux、macOS；Windows 可使用 WSL。当前项目尚未公开；计划发布到 `tingfeng347/windvim`，下面的 GitHub 下载命令在仓库公开后生效。也可直接使用本地源码或分享的压缩包。**不依赖 dotfiles 仓库。**
+支持 Linux、macOS；Windows 可使用 WSL。项目开源于 [tingfeng347/windvim](https://github.com/tingfeng347/windvim)，可以克隆仓库、下载 GitHub 源码包，或使用本地源码安装。**不依赖 dotfiles 仓库。**
 
 ## 准备依赖
 
