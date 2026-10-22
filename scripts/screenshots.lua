@@ -1,4 +1,4 @@
--- A real project journey: dashboard + tree, editing, navigation and code preview.
+-- Standalone dashboard first, then project editing, navigation and code preview.
 vim.defer_fn(function()
   local ok, err = xpcall(function()
     local project = vim.fn.getcwd()
@@ -25,7 +25,19 @@ vim.defer_fn(function()
     Snacks.notifier.hide()
     local main = vim.api.nvim_get_current_win()
     assert(vim.bo.filetype == "snacks_dashboard", "initial dashboard is not ready")
-    -- Let the project and its language tools settle before recording the home view.
+    -- Capture the original home without opening files or the explorer.
+    assert(text(vim.api.nvim_get_current_buf()):find("W I N D V I M", 1, true), "dashboard missing")
+    snapshot("dashboard-zh")
+    for _ = 1, 48 do
+      wait(120)
+      snapshot("dashboard-animation")
+    end
+    require("lazyvim_i18n").set_locale("en")
+    wait(180)
+    snapshot("dashboard-en")
+    require("lazyvim_i18n").set_locale("zh_CN")
+
+    -- Open the project tree only for editing and navigation demonstrations.
     vim.cmd.edit(vim.fn.fnameescape(project .. "/lua/config/lazy.lua"))
     vim.cmd.edit(vim.fn.fnameescape(source))
     local explorer = Snacks.explorer({ cwd = project, layout = { preset = "sidebar", layout = { width = 29 } } })
@@ -37,31 +49,7 @@ vim.defer_fn(function()
     Snacks.explorer.reveal({ file = source })
     wait(350)
     vim.api.nvim_set_current_win(main)
-    vim.cmd("Noice dismiss")
-    Snacks.notifier.hide()
     assert(text(explorer.list.win.buf):find("windvim", 1, true), "project tree did not open")
-    Snacks.dashboard.open({ win = main })
-    wait(400)
-    vim.cmd("Noice dismiss")
-    Snacks.notifier.hide()
-    wait(100)
-    assert(text(vim.api.nvim_get_current_buf()):find("W I N D V I M", 1, true), "project dashboard missing")
-    snapshot("dashboard-zh")
-    for _ = 1, 48 do
-      wait(120)
-      snapshot("dashboard-animation")
-    end
-    require("lazyvim_i18n").set_locale("en")
-    wait(180)
-    snapshot("dashboard-en")
-    require("lazyvim_i18n").set_locale("zh_CN")
-
-    -- Return to the source buffer without reinitializing the project.
-    vim.cmd.edit(vim.fn.fnameescape(source))
-    wait(350)
-    Snacks.explorer.reveal({ file = source })
-    wait(250)
-    vim.api.nvim_set_current_win(main)
     vim.cmd("normal! gg")
     vim.cmd("Noice dismiss")
     Snacks.notifier.hide()

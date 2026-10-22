@@ -2,11 +2,11 @@
 
 [返回首页](../README.md)
 
-以 WindVim 自身的源码项目作为演示，展示目录浏览、代码编辑、中文菜单和文件搜索。以下画面均来自实际 Neovim 界面。
+启动页独立展示彩色动态标识；代码编辑、中文菜单和文件搜索以 WindVim 自身的源码项目作为演示。以下画面均来自实际 Neovim 界面。
 
-## 项目目录与动态启动页
+## 动态启动页
 
-![项目目录与动态启动页](screenshots/dashboard-animation.gif)
+![WindVim 动态启动页](screenshots/dashboard-animation.gif)
 
 ## 项目代码编辑
 
@@ -32,6 +32,6 @@
 
 ## 英文界面
 
-同一个项目工作区可以切换为英文。
+启动页和常用界面可以切换为英文。
 
-![英文项目启动页](screenshots/dashboard-en.png)
+![英文启动页](screenshots/dashboard-en.png)

@@ -53,7 +53,7 @@ WindVim 从 [dotfiles](https://github.com/tingfeng347/dotfiles) 的 LazyVim 模�
 
 `lua/windvim/logo.lua` 使用小型深度缓冲绘制管状 W、风环和粒子，每 120ms 更新一次字符覆盖层；菜单缓冲区和光标保持稳定。动画在后台、窄窗口或低高度终端暂停，`WINDVIM_ANIMATION=0` 可保持静态。
 
-演示素材使用 `scripts/screenshots.py` / `scripts/screenshots.lua` 录制，复用 UI 网格捕获器。脚本创建独立 XDG 配置与临时项目克隆，打开 WindVim 自身，依次拍摄目录树与启动页、源码、文件快捷键、搜索预览和插件管理；不会部署到本机配置。默认使用 144 × 38 的界面尺寸，录制期间临时关闭消息浮层，导出图片放在 `docs/screenshots/`。
+演示素材使用 `scripts/screenshots.py` / `scripts/screenshots.lua` 录制，复用 UI 网格捕获器。脚本创建独立 XDG 配置与临时项目克隆，先拍摄不带目录树的独立启动页，再打开 WindVim 自身项目的目录树，拍摄源码编辑、文件快捷键、搜索预览和插件管理；不会部署到本机配置。默认使用 144 × 38 的界面尺寸，录制期间临时关闭消息浮层，导出图片放在 `docs/screenshots/`。
 
 运行前需要 WindVim 已安装插件。默认读取本机 WindVim 的数据目录，也可通过 `WINDVIM_DEMO_DATA=/path/to/data` 指定兼容的插件缓存。演示项目取自本地 Git 的 HEAD；需要展示新的源码时先提交它。渲染器继续支持 `I18N_TEST_FONT` 指定字体。
 
