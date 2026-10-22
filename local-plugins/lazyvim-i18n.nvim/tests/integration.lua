@@ -153,12 +153,76 @@ vim.defer_fn(function()
     contains(buffer(dash_buf), "查找文件")
     contains(buffer(dash_buf), "WindVim 已加载")
     snapshot("dashboard-zh")
+    local logo_ns = vim.api.nvim_get_namespaces().windvim_logo
+    local function logo_marks()
+      return vim.inspect(vim.api.nvim_buf_get_extmarks(dash_buf, logo_ns, 0, -1, { details = true }))
+    end
+    local before = logo_marks()
+    local changedtick = vim.api.nvim_buf_get_changedtick(dash_buf)
+    local cursor = vim.api.nvim_win_get_cursor(0)
+    vim.wait(400)
+    local motion = vim.env.WINDVIM_ANIMATION ~= "0" and vim.env.NO_COLOR == nil
+    if motion then
+      assert(before ~= logo_marks(), "logo should animate while dashboard is focused")
+    else
+      eq(before, logo_marks())
+    end
+    eq(changedtick, vim.api.nvim_buf_get_changedtick(dash_buf))
+    assert(vim.deep_equal(cursor, vim.api.nvim_win_get_cursor(0)), "animation must not move menu cursor")
+    if motion and vim.env.WINDVIM_CAPTURE_ANIMATION == "1" then
+      for _ = 1, 48 do
+        vim.wait(120)
+        snapshot("dashboard-animation")
+      end
+    end
+    vim.cmd("Lazy")
+    vim.wait(100)
+    before = logo_marks()
+    vim.wait(300)
+    eq(before, logo_marks())
+    require("lazy.view").view:close()
+    vim.wait(300)
+    if motion then
+      assert(before ~= logo_marks(), "logo should resume after closing an overlay")
+    else
+      eq(before, logo_marks())
+    end
     i18n.set_locale("en")
     vim.wait(100)
     contains(buffer(dash_buf), "Find File")
     contains(buffer(dash_buf), "WindVim loaded")
     contains(buffer(dash_buf), "plugins in")
     snapshot("dashboard-en")
+
+    -- Motion must pause when hidden, reduced, or too large for the window.
+    if motion then
+      vim.api.nvim_exec_autocmds("FocusLost", {})
+      before = logo_marks()
+      vim.wait(250)
+      eq(before, logo_marks())
+      vim.api.nvim_exec_autocmds("FocusGained", {})
+      vim.wait(250)
+      assert(before ~= logo_marks(), "focus should resume motion")
+    end
+    local old_motion = vim.env.WINDVIM_ANIMATION
+    vim.env.WINDVIM_ANIMATION = "0"
+    dashboard.update()
+    before = logo_marks()
+    vim.wait(250)
+    eq(before, logo_marks())
+    vim.env.WINDVIM_ANIMATION = old_motion
+    vim.o.columns = 40
+    dashboard.update()
+    vim.wait(150)
+    contains(buffer(dash_buf), "W I N D V I M")
+    eq(0, #vim.api.nvim_buf_get_extmarks(dash_buf, logo_ns, 0, -1, {}))
+    snapshot("dashboard-compact")
+    vim.o.columns = 140
+    vim.o.lines = 28
+    dashboard.update()
+    eq(0, #vim.api.nvim_buf_get_extmarks(dash_buf, logo_ns, 0, -1, {}))
+    vim.o.lines = 45
+    dashboard.update()
 
     -- Persist to a temporary state file, then emulate a new plugin setup.
     eq("en", vim.fn.readfile(state)[1])

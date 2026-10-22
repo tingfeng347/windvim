@@ -15,23 +15,56 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-cba6f7?style=flat-square" alt="Apache-2.0 License"></a>
 </p>
 
-沿用 [LazyVim](https://github.com/LazyVim/LazyVim) 的插件生态与快捷键，加入可切换汉化、Sidekick 多面板、居中浮动终端与 Catppuccin 透明主题。
+WindVim 是基于 [LazyVim](https://github.com/LazyVim/LazyVim) 的个人定制 Neovim 配置，面向习惯终端开发、希望使用中文界面并结合 AI 编程工具的用户。沿用 LazyVim 的插件生态、语言支持与快捷键，再加入一套可以直接使用的界面与工作区配置。
 
-![WindVim 启动页](docs/screenshots/dashboard-zh.png)
+默认以独立应用 `windvim` 运行，可以和已有的 Neovim / LazyVim 并存。支持 Linux、macOS，Windows 可通过 WSL 使用。
+
+## 特性
+
+- **中文 / English 随时切换**：覆盖快捷键菜单、插件管理、常用选择器和启动页，切换后记住选择；文件内容、路径与命令保留原文。
+- **AI CLI 侧栏**：通过 Sidekick 接入已安装的 Codex、Claude 等 CLI，支持同一列堆叠多个面板，方便边看代码边协作。
+- **浮动终端与导航**：居中圆角终端、文件浏览器、项目搜索、Bufferline 与 Dropbar，沿用熟悉的 LazyVim 操作方式。
+- **完整的视觉定制**：Catppuccin 透明主题、Markdown 渲染与专属动态启动页，W 标识搭配有深度的风环与流动粒子。
+- **配置独立、方便修改**：安装时保护已有目录，显式覆盖会先备份；主题、快捷键与本地汉化层都可单独调整。
+
+![WindVim 动态启动页](docs/screenshots/dashboard-animation.gif)
+
+<table>
+  <tr>
+    <td><img src="docs/screenshots/which-key-zh.png" alt="中文快捷键菜单"><br>中文快捷键菜单</td>
+    <td><img src="docs/screenshots/picker-zh.png" alt="文件搜索与预览"><br>文件搜索与预览</td>
+  </tr>
+</table>
+
+更多界面见[截图集](docs/GALLERY.md)。
 
 ## 安装
 
 > **前置要求**：Neovim ≥ 0.11.2（LuaJIT）、Git、`rsync`。完整依赖见[使用说明](docs/USAGE.md)。
 
-在源码目录中安装：
+从 GitHub 安装（仓库公开后可用）：
 
 ```bash
+git clone https://github.com/tingfeng347/windvim.git
 cd windvim
 ./install.sh
 ~/.local/bin/windvim
 ```
 
-默认使用独立配置 `~/.config/windvim`。首次启动自动下载插件；将 `~/.local/bin` 加入 PATH 后可直接运行 `windvim`。
+默认使用独立配置 `~/.config/windvim`，安装器不使用 sudo。首次启动自动下载插件，需要能访问 GitHub；将 `~/.local/bin` 加入 PATH 后可直接运行 `windvim`。已有源码目录时可直接运行 `./install.sh`。
+
+安装选项、源码压缩包下载及各系统依赖见[使用说明](docs/USAGE.md)。Copilot 与 AI CLI 需要各自登录，常规编辑功能可以独立使用。
+
+## 更新
+
+在最初克隆的项目目录运行：
+
+```bash
+git pull --ff-only
+./install.sh --force
+```
+
+更新前会备份旧配置；插件可在编辑器中通过 `:Lazy` 管理。
 
 ## 快捷键
 

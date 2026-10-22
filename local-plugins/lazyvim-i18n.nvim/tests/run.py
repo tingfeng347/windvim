@@ -28,6 +28,7 @@ font = ImageFont.truetype(font_path, 18)
 braille_path = os.environ.get("I18N_BRAILLE_FONT", "/usr/share/fonts/TTF/DejaVuSans.ttf")
 braille_font = ImageFont.truetype(braille_path, 18) if Path(braille_path).is_file() else font
 grids, colors = {}, {0: {}}
+animation_frames = []
 default_fg, default_bg = "#cdd6f4", "#1e1e2e"
 
 
@@ -86,8 +87,12 @@ def notification(method, args):
                 attrs = colors.get(hl, {})
                 fg = color(attrs.get("background" if attrs.get("reverse") else "foreground"), default_fg)
                 cell_font = braille_font if char and 0x2800 <= ord(char[0]) <= 0x28FF else font
-                draw.text((x * 11, y * 25), char, font=cell_font, fill=fg)
-        image.save(output / f"{args[0]}.png")
+                if char.strip():
+                    draw.text((x * 11, y * 25), char, font=cell_font, fill=fg)
+        if args[0] == "dashboard-animation":
+            animation_frames.append(image.convert("P", palette=Image.Palette.ADAPTIVE, colors=64))
+        else:
+            image.save(output / f"{args[0]}.png")
 
 
 with tempfile.TemporaryDirectory(prefix="windvim-i18n-test-") as tmp:
@@ -112,5 +117,8 @@ with tempfile.TemporaryDirectory(prefix="windvim-i18n-test-") as tmp:
     except EOFError:
         pass
     report = result.read_text() if result.exists() else "FAIL: Neovim exited without a result"
+    if animation_frames:
+        animation_frames[0].save(output / "dashboard-animation.gif", save_all=True,
+                                 append_images=animation_frames[1:], duration=120, loop=0, disposal=2)
     print(report)
     raise SystemExit(0 if report.startswith("PASS") else 1)

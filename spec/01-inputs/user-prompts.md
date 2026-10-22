@@ -35,3 +35,11 @@
 ## 2026-10-22 · 项目标识与首页文档
 
 > windvim的首页的logo重新设计一下，将人像的换成一个专属的logo，本地的不要改变，然后readme里面有些说明性的文字和解释放在docs/下，readme精简一下，参考https://github.com/tingfeng347/mactools的README.md的风格
+
+## 2026-10-22 · 介绍、远程安装与动态标识
+
+> 现在太精简了，在多一点点，介绍丰富一些，然后我以后会上传到github，通过下载github远程的安装
+
+> windvim的首页logo太简洁了，丰富一下，可以添加多台的效果，和jcode类似的
+
+> 动态

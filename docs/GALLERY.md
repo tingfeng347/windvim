@@ -4,6 +4,8 @@
 
 以下图片由实际 Neovim UI 网格捕获，使用仓库锁定的插件版本；终端背景与字体会影响最终效果。
 
+![WindVim 动态启动页](screenshots/dashboard-animation.gif)
+
 ![WindVim 中文启动页](screenshots/dashboard-zh.png)
 
 <table>

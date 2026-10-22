@@ -2,7 +2,7 @@
 
 [返回首页](../README.md)
 
-支持 Linux、macOS；Windows 可使用 WSL。当前项目仅在本地维护，可分享整个目录或源码压缩包供其他人安装。**不依赖 dotfiles 仓库。**
+支持 Linux、macOS；Windows 可使用 WSL。当前项目尚未公开；计划发布到 `tingfeng347/windvim`，下面的 GitHub 下载命令在仓库公开后生效。也可直接使用本地源码或分享的压缩包。**不依赖 dotfiles 仓库。**
 
 ## 准备依赖
 
@@ -23,7 +23,26 @@ sudo pacman -S neovim git rsync ripgrep fd curl tree-sitter-cli base-devel
 
 ## 安装配置
 
-获得项目目录或解压源码包后：
+从 GitHub 克隆：
+
+```bash
+git clone https://github.com/tingfeng347/windvim.git
+cd windvim
+./install.sh
+```
+
+也可以直接下载 GitHub 源码包：
+
+```bash
+curl -fL https://github.com/tingfeng347/windvim/archive/refs/heads/main.tar.gz -o windvim.tar.gz
+tar -xzf windvim.tar.gz
+cd windvim-main
+./install.sh
+```
+
+压缩包安装的目录没有 Git 元数据，后续更新请重新下载源码包并运行 `./install.sh --force`。从 Git 克隆的目录可以通过 `git pull --ff-only` 更新。
+
+已有本地源码或解压目录时，进入该目录安装并启动：
 
 ```bash
 cd windvim
@@ -47,6 +66,19 @@ NVIM_APPNAME=lazyvim nvim
 ```
 
 支持 `XDG_CONFIG_HOME`、`WINDVIM_BIN_DIR`（默认 `~/.local/bin`）、`NVIM_BIN`。配置目录默认 `~/.config/windvim`；数据、缓存和状态使用 Neovim 对应的 XDG 目录下的 `windvim` 子目录。
+
+## 启动页动画
+
+启动页以带明暗层次的 W 为中心，风环与粒子循环流动。动画只更新标识区域，不改动菜单、光标或文件内容；打开其他面板、离开启动页或终端失焦时暂停，小窗口使用静态文字标识。
+
+使用静态启动页：
+
+```bash
+WINDVIM_ANIMATION=0 windvim
+# 或 WINDVIM_ANIMATION=0 NVIM_APPNAME=windvim nvim
+```
+
+设置 `NO_COLOR` 时也会停止动画。动画使用原生终端字符，不需要终端图像协议或额外插件。
 
 ## 环境检查与 AI 功能
 

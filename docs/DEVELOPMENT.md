@@ -22,7 +22,7 @@ I18N_SCREENSHOT_DIR="$PWD/docs/screenshots" \
 
 ## 源码分发
 
-当前项目在本地维护。提交改动后，可以生成包含文档和截图的源码包：
+项目目前仅在本地维护；公开发布后，用户可通过 GitHub 克隆或下载源码包安装。提交改动后，也可以生成包含文档和截图的分享包：
 
 ```bash
 mkdir -p .dist
@@ -30,6 +30,17 @@ git archive --format=tar.gz --prefix=windvim/ HEAD -o .dist/windvim.tar.gz
 ```
 
 接收者解压后按[使用说明](USAGE.md)安装，无需 dotfiles 或原仓库的 Git 历史。
+
+## GitHub 发布
+
+计划仓库：`https://github.com/tingfeng347/windvim`，默认分支 `main`。在 GitHub 创建空仓库后，维护者可在本项目中执行：
+
+```bash
+git remote add origin https://github.com/tingfeng347/windvim.git
+git push -u origin main
+```
+
+README 已按此地址准备克隆安装命令；改用其他账号或仓库名时，一并修改文档中的下载地址。本项目不在本地自动创建仓库或推送。
 
 ## 来源与目录
 
@@ -41,4 +52,6 @@ WindVim 从 [dotfiles](https://github.com/tingfeng347/dotfiles) 的 LazyVim 模�
 - `docs/assets/windvim.svg`：项目图标，W 字形与风线组成。
 - `spec/`：需求、方案和验收记录。
 
-启动页以终端字符重现 W 与风线标识；不依赖终端图像协议，窄窗口隐藏图形以保留菜单空间。
+`lua/windvim/logo.lua` 使用小型深度缓冲绘制管状 W、风环和粒子，每 120ms 更新一次字符覆盖层；菜单缓冲区和光标保持稳定。动画在后台、窄窗口或低高度终端暂停，`WINDVIM_ANIMATION=0` 可保持静态。
+
+动态预览由真实 Neovim UI 网格录制。在截图命令前添加 `WINDVIM_CAPTURE_ANIMATION=1`，同时输出 `dashboard-animation.gif`。

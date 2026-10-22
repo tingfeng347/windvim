@@ -1,16 +1,4 @@
--- WindVim wind-shaped W mark, matching docs/assets/windvim.svg.
-local header_art = table.concat({
-  "                   ╭────╮     ",
-  "            ───────╯    ╯     ",
-  "                              ",
-  "    ─────╮              ╭─────",
-  "         ╲      ╱╲      ╱     ",
-  "          ╲    ╱  ╲    ╱      ",
-  "     ──    ╲  ╱    ╲  ╱    ── ",
-  "            ╲╱      ╲╱        ",
-  "                              ",
-  "        W I N D V I M         ",
-}, "\n")
+local logo = require("windvim.logo")
 
 local function startup()
   local stats = require("lazy.stats").stats()
@@ -31,6 +19,7 @@ return {
   {
     "folke/snacks.nvim",
     config = function(_, opts)
+      logo.setup()
       require("snacks").setup(opts)
 
       local D = require("snacks.dashboard").Dashboard
@@ -126,14 +115,7 @@ return {
           { padding = { 0, 1 } },
           -- Custom header section so the logo sits tight against the menu
           -- (the stock header section adds two blank rows of its own).
-          function()
-            -- Hide the mark when the window is too narrow to fit it, so the
-            -- menu alone stays usable instead of a half-clipped logo.
-            if vim.o.columns < 34 then
-              return {}
-            end
-            return { header = header_art, padding = { 1, 0 } }
-          end,
+          logo.section,
           -- Add one line above and below the menu. Since the dashboard is
           -- vertically centred, this also lifts the header by one line
           -- without making the individual shortcut rows overly sparse.
@@ -141,7 +123,7 @@ return {
           startup,
         },
         preset = {
-          header = header_art,
+          header = "W I N D V I M",
           keys = {
             { icon = " ", key = "f", desc = "查找文件", action = ":lua Snacks.dashboard.pick('files')" },
             { icon = " ", key = "n", desc = "新建文件", action = ":ene | startinsert" },
