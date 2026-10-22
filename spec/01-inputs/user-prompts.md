@@ -31,3 +31,7 @@
 ## 2026-10-22 · 保留原配置
 
 > 原来的dotfile里面lazyvim也要保留，只是复制一份给windvim
+
+## 2026-10-22 · 项目标识与首页文档
+
+> windvim的首页的logo重新设计一下，将人像的换成一个专属的logo，本地的不要改变，然后readme里面有些说明性的文字和解释放在docs/下，readme精简一下，参考https://github.com/tingfeng347/mactools的README.md的风格
