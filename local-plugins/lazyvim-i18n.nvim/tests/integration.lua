@@ -2,6 +2,11 @@
 vim.defer_fn(function()
   local ok, err = xpcall(function()
     local i18n = require("lazyvim_i18n")
+    assert(
+      require("lazy.core.config").plugins["lazyvim-i18n.nvim"].dir
+        == vim.fn.stdpath("config") .. "/local-plugins/lazyvim-i18n.nvim",
+      "local translation plugin must resolve inside the active standalone config"
+    )
     assert(vim.fn.maparg("<leader>uH", "n", false, true).desc == "Switch UI Language (中文/English)")
     assert(vim.fn.maparg("<leader>uL", "n", false, true).desc == "Toggle Relative Number")
     assert(vim.fn.maparg("<leader>uC", "n", false, true).desc == "Colorschemes")

@@ -10,12 +10,12 @@
 - `:LazyVimLanguage toggle`：切换。
 - `:LazyVimLanguage`：查看当前语言。
 
-重启独立配置 `lazyvim` 后生效。已打开的 Lazy、which-key、Snacks 选择器和启动页在切换时刷新。
+重启独立配置 `windvim` 后生效。已打开的 Lazy、which-key、Snacks 选择器和启动页在切换时刷新。
 
 语言保存在 `stdpath("state") .. "/lazyvim-i18n/locale"`，与其他 Neovim 配置隔离。加载顺序为 `LAZYVIM_LANGUAGE` 环境变量 > 已保存的选择 > `opts.locale`。例如：
 
 ```sh
-NVIM_APPNAME=lazyvim LAZYVIM_LANGUAGE=en nvim
+NVIM_APPNAME=windvim LAZYVIM_LANGUAGE=en nvim
 ```
 
 环境变量只决定本次启动时的语言；本次使用命令切换仍会保存新选择。设置 `persist = false` 可关闭读写保存状态。删掉上述状态文件即可恢复配置默认值。
@@ -72,11 +72,11 @@ return {
 上游缺少统一 i18n API，所以 lazy.nvim、which-key 底栏和 Snacks 使用了局部函数包装，存在上游接口变动后的维护成本。适配不修改模块源文件；新增上游文字默认显示原文。建议更新这些插件后运行下面的真实 UI 集成测试。
 
 ```sh
-cd ~/.config/lazyvim
+cd /path/to/windvim
 uv run --with pynvim --with pillow python local-plugins/lazyvim-i18n.nvim/tests/run.py
 ```
 
-测试使用临时语言状态文件，附加真实 Neovim UI，覆盖中英切换、保存恢复、原文保护、窄屏标题、卸载恢复和四类面板。截图保存在 Git 忽略的 `.tests/i18n/`。测试截图字体路径使用本机 JetBrains Maple Mono；换机器时可调整 `tests/run.py` 的字体路径。
+测试使用临时语言状态文件，附加真实 Neovim UI，覆盖中英切换、保存恢复、原文保护、窄屏标题、卸载恢复和四类面板。截图保存在 Git 忽略的 `.tests/i18n/`。测试自动探测 JetBrains Maple Mono / Noto Sans CJK / macOS PingFang；也可用 `I18N_TEST_FONT=/path/to/font.ttf` 指定字体。用 `I18N_SCREENSHOT_DIR=/path/to/output` 指定截图输出目录。
 
 ## 调研依据
 

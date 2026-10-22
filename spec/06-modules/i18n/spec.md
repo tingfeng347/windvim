@@ -4,7 +4,7 @@
 
 ## 边界与方案
 
-只接入独立配置 `NVIM_APPNAME=lazyvim`。本地插件放在 `local-plugins/lazyvim-i18n.nvim`，由单个 `lua/plugins/i18n.lua` 入口加载。默认中文，状态按本配置的 `stdpath("state")` 保存；可通过命令和 `<leader>uH` 切换，未命中词典显示原文。
+接入当前 Neovim 独立配置（WindVim 默认 `NVIM_APPNAME=windvim`；提取前为 `lazyvim`）。本地插件放在 `local-plugins/lazyvim-i18n.nvim`，由单个 `lua/plugins/i18n.lua` 入口加载。默认中文，状态按本配置的 `stdpath("state")` 保存；可通过命令和 `<leader>uH` 切换，未命中词典显示原文。
 
 适配 which-key、lazy.nvim、Snacks 选择器/文件面板标题、Snacks 启动页。插件名、命令、原始映射、路径、代码和提交正文保持原样。不承诺所有第三方插件弹窗的完整汉化；具体支持范围以插件 README 为准。
 

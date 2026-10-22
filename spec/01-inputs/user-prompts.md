@@ -19,3 +19,15 @@
 > [Image #1]这个没有汉化，汉化一下
 
 附件：`/tmp/codex-clipboard-8GxNDR.png`，显示文件浏览器菜单中的 `picker_grep` 未翻译。
+
+## 2026-10-22 · 独立项目
+
+> 将lazyvim单独拆分为一个项目，放在self_project下，项目名称为windvim，其他人可以安装我的自定义的lazyvim，要求有截图演示和徽标，有lazyvim的引用
+
+发布问题：项目完成并验证后，是否在 GitHub 账号 tingfeng347 下创建公开仓库 windvim 并推送。
+
+> 仅创建本地项目，暂不公开
+
+## 2026-10-22 · 保留原配置
+
+> 原来的dotfile里面lazyvim也要保留，只是复制一份给windvim

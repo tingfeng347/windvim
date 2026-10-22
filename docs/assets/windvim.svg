@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-labelledby="title desc">
+<title id="title">WindVim</title><desc id="desc">A wind-shaped W mark with WindVim lettering. Built on LazyVim.</desc>
+<rect width="1200" height="320" rx="32" fill="#1e1e2e"/>
+<g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="12">
+<path d="M92 106h54l26 102 34-78 34 78 36-102h32" stroke="#94e2d5"/>
+<path d="M82 146h34m-20 40h26m174-40h44m-56 40h34" stroke="#89b4fa"/>
+<path d="M252 76h62c30 0 30-38 6-38" stroke="#cba6f7" stroke-width="8"/>
+</g>
+<text x="390" y="171" fill="#cdd6f4" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="88" font-weight="700" letter-spacing="-5">Wind<tspan fill="#94e2d5">Vim</tspan></text>
+<text x="396" y="226" fill="#a6adc8" font-family="system-ui, sans-serif" font-size="24" letter-spacing="3">YOUR FLOW. POWERED BY LAZYVIM.</text>
+</svg>

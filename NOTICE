@@ -1,0 +1,17 @@
+WindVim
+Copyright 2026 tingfeng347
+
+WindVim is a customized Neovim configuration based on LazyVim and the
+LazyVim starter template. It is an independent community configuration.
+
+LazyVim: https://github.com/LazyVim/LazyVim
+LazyVim documentation: https://www.lazyvim.org/
+LazyVim starter: https://github.com/LazyVim/starter
+
+The starter's Apache License 2.0 is retained in LICENSE. WindVim additions
+and modifications are distributed under the same license. Dependencies
+remain under their respective licenses; they are installed separately.
+
+WindVim additions include the local optional Chinese UI translation plugin,
+WindVim dashboard, terminal and Sidekick layouts, and visual customizations.
+The configuration's Git history was extracted from tingfeng347/dotfiles.

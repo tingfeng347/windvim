@@ -12,11 +12,21 @@ from PIL import Image, ImageDraw, ImageFont
 
 root = Path(__file__).resolve().parents[3]
 os.chdir(root)
-output = root / ".tests/i18n"
+output = Path(os.environ.get("I18N_SCREENSHOT_DIR", root / ".tests/i18n")).resolve()
 output.mkdir(parents=True, exist_ok=True)
-font = ImageFont.truetype(
-    "/usr/share/fonts/TTF/JetBrains-Maple-Mono-NF-XX-XX/JetBrainsMapleMono-Regular.ttf", 18
-)
+font_candidates = [
+    os.environ.get("I18N_TEST_FONT", ""),
+    "/usr/share/fonts/TTF/JetBrains-Maple-Mono-NF-XX-XX/JetBrainsMapleMono-Regular.ttf",
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+    "/System/Library/Fonts/PingFang.ttc",
+]
+font_path = next((path for path in font_candidates if path and Path(path).is_file()), None)
+if not font_path:
+    raise SystemExit("Set I18N_TEST_FONT to a font with Chinese and Nerd Font glyphs")
+font = ImageFont.truetype(font_path, 18)
+# Terminals use font fallback for Braille art; emulate it when available.
+braille_path = os.environ.get("I18N_BRAILLE_FONT", "/usr/share/fonts/TTF/DejaVuSans.ttf")
+braille_font = ImageFont.truetype(braille_path, 18) if Path(braille_path).is_file() else font
 grids, colors = {}, {0: {}}
 default_fg, default_bg = "#cdd6f4", "#1e1e2e"
 
@@ -75,13 +85,14 @@ def notification(method, args):
             for x, (char, hl) in enumerate(row):
                 attrs = colors.get(hl, {})
                 fg = color(attrs.get("background" if attrs.get("reverse") else "foreground"), default_fg)
-                draw.text((x * 11, y * 25), char, font=font, fill=fg)
+                cell_font = braille_font if char and 0x2800 <= ord(char[0]) <= 0x28FF else font
+                draw.text((x * 11, y * 25), char, font=cell_font, fill=fg)
         image.save(output / f"{args[0]}.png")
 
 
-with tempfile.TemporaryDirectory(prefix="lazyvim-i18n-test-") as tmp:
+with tempfile.TemporaryDirectory(prefix="windvim-i18n-test-") as tmp:
     result = Path(tmp) / "result"
-    os.environ["NVIM_APPNAME"] = "lazyvim"
+    os.environ.setdefault("NVIM_APPNAME", "windvim")
     os.environ["LAZYVIM_LANGUAGE"] = "zh_CN"
     os.environ["I18N_TEST_RESULT"] = str(result)
     # Disable only the automatic checker in this test process, before VeryLazy.
@@ -91,7 +102,7 @@ with tempfile.TemporaryDirectory(prefix="lazyvim-i18n-test-") as tmp:
         'callback=function() require("lazy.core.config").options.checker.enabled=false end})'
     )
     nvim = pynvim.attach(
-        "child", argv=["nvim", "--embed", "-i", "NONE", "--cmd", disable_checker]
+        "child", argv=[os.environ.get("NVIM_BIN", "nvim"), "--embed", "-i", "NONE", "--cmd", disable_checker]
     )
     nvim.ui_attach(140, 45, rgb=True, ext_linegrid=True)
     nvim.vars["i18n_test_channel"] = nvim.channel_id
