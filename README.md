@@ -24,7 +24,7 @@ WindVim 是基于 [LazyVim](https://github.com/LazyVim/LazyVim) 的个人定制 
 - **中文 / English 随时切换**：覆盖快捷键菜单、插件管理、常用选择器和启动页，切换后记住选择；文件内容、路径与命令保留原文。
 - **AI CLI 侧栏**：通过 Sidekick 接入已安装的 Codex、Claude 等 CLI，支持同一列堆叠多个面板，方便边看代码边协作。
 - **浮动终端与导航**：居中圆角终端、文件浏览器、项目搜索、Bufferline 与 Dropbar，沿用熟悉的 LazyVim 操作方式。
-- **完整的视觉定制**：Catppuccin 透明主题、Markdown 渲染与专属动态启动页，W 标识搭配有深度的风环与流动粒子。
+- **完整的视觉定制**：Catppuccin 透明主题、Markdown 渲染与专属动态启动页，彩色 W 标识搭配有深度的风环与流动粒子。
 - **配置独立、方便修改**：安装时保护已有目录，显式覆盖会先备份；主题、快捷键与本地汉化层都可单独调整。
 
 ![WindVim 动态启动页](docs/screenshots/dashboard-animation.gif)

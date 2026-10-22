@@ -1,10 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
   <title id="title">WindVim</title>
   <desc id="desc">A W formed by two flowing strokes, surrounded by wind lines.</desc>
+  <defs>
+    <linearGradient id="wind" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#67e8d0"/>
+      <stop offset="0.33" stop-color="#74b9f5"/>
+      <stop offset="0.67" stop-color="#b59cf8"/>
+      <stop offset="1" stop-color="#f1a8d8"/>
+    </linearGradient>
+  </defs>
   <rect width="256" height="256" rx="56" fill="#1e1e2e"/>
   <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M56 104h21l18 68 31-57 30 57 20-68h21" stroke="#94e2d5" stroke-width="10"/>
-    <path d="M38 132h22m136 0h22M48 160h18m119 0h22" stroke="#89b4fa" stroke-width="8"/>
-    <path d="M102 73h54c28 0 28-34 6-34" stroke="#cba6f7" stroke-width="8"/>
+    <path d="M56 104h21l18 68 31-57 30 57 20-68h21" stroke="url(#wind)" stroke-width="10"/>
+    <path d="M38 132h22m136 0h22M48 160h18m119 0h22" stroke="#7099ce" stroke-width="8"/>
+    <path d="M102 73h54c28 0 28-34 6-34" stroke="#a18bc7" stroke-width="8"/>
   </g>
 </svg>

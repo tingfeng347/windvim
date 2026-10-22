@@ -6,19 +6,41 @@ local active, timer
 local step = 0
 local focused = true
 local shades = { "·", "░", "▒", "▓", "█" }
+local COLOR_BANDS = 12
+-- A cool-to-warm material runs along the W; lighting preserves its volume.
+local palette = { { 103, 232, 208 }, { 116, 185, 245 }, { 181, 156, 248 }, { 241, 168, 216 } }
+local background = { 30, 30, 46 }
+
+local function material(band, shade)
+  local position = (band - 1) / (COLOR_BANDS - 1) * (#palette - 1)
+  local index = math.min(#palette - 1, math.floor(position) + 1)
+  local fraction = position - (index - 1)
+  local rgb = {}
+  for channel = 1, 3 do
+    local value = palette[index][channel] * (1 - fraction) + palette[index + 1][channel] * fraction
+    if shade <= 3 then
+      local light = 0.56 + shade * 0.12
+      value = background[channel] + (value - background[channel]) * light
+    else
+      value = value + (255 - value) * (shade - 3) * 0.13
+    end
+    rgb[channel] = math.floor(value + 0.5)
+  end
+  return ("#%02x%02x%02x"):format(unpack(rgb))
+end
 local points = { { -1, -0.62 }, { -0.5, 0.62 }, { 0, -0.12 }, { 0.5, 0.62 }, { 1, -0.62 } }
 
 local function highlights()
+  for band = 1, COLOR_BANDS do
+    for shade = 1, #shades do
+      vim.api.nvim_set_hl(0, "WindVimLogo" .. band .. "_" .. shade, { fg = material(band, shade) })
+    end
+  end
   for name, color in pairs({
-    WindVimLogo1 = "#509eab",
-    WindVimLogo2 = "#74c7c6",
-    WindVimLogo3 = "#94e2d5",
-    WindVimLogo4 = "#b7f1e4",
-    WindVimLogo5 = "#e1fff5",
-    WindVimWind = "#89b4fa",
-    WindVimOrbit = "#cba6f7",
-    WindVimSpark = "#f5c2e7",
-    WindVimWordmark = "#cdd6f4",
+    WindVimWind = "#7099ce",
+    WindVimOrbit = "#a18bc7",
+    WindVimSpark = "#f4d58d",
+    WindVimWordmark = "#dce4f5",
   }) do
     vim.api.nvim_set_hl(0, name, { fg = color })
   end
@@ -68,7 +90,9 @@ function M.frame(frame)
         local nx, ny, nz = -dy / length * math.cos(angle), dx / length * math.cos(angle), math.sin(angle)
         local light = math.max(0, math.min(1, (nz * 0.65 - ny * 0.45 - nx * 0.2 + 1) / 2))
         local shade = math.min(5, math.floor(light * 4) + 1)
-        plot(a[1] + dx * t + nx * 0.13, a[2] + dy * t + ny * 0.13, nz * 0.13, shades[shade], "WindVimLogo" .. shade)
+        local x = a[1] + dx * t + nx * 0.13
+        local band = math.max(1, math.min(COLOR_BANDS, math.floor((x + 1) / 2 * COLOR_BANDS) + 1))
+        plot(x, a[2] + dy * t + ny * 0.13, nz * 0.13, shades[shade], "WindVimLogo" .. band .. "_" .. shade)
       end
     end
   end

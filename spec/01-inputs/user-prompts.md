@@ -43,3 +43,9 @@
 > windvim的首页logo太简洁了，丰富一下，可以添加多台的效果，和jcode类似的
 
 > 动态
+
+## 2026-10-22 · 彩色标识
+
+> [Image #1]颜色可以改为彩色的，但是要设计的好看一点，logo
+
+附件：`/tmp/codex-clipboard-3fNaEN.png`（当前动态 W 标识截图）。
