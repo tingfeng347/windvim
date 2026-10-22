@@ -5,6 +5,10 @@
 <h1 align="center">WindVim</h1>
 
 <p align="center">
+  <strong>简体中文</strong> · <a href="README.en.md">English</a>
+</p>
+
+<p align="center">
   <strong>基于 LazyVim 的 Neovim 配置 — 中文界面、AI 侧栏与浮动终端</strong>
 </p>
 
@@ -29,11 +33,11 @@ WindVim 是基于 [LazyVim](https://github.com/LazyVim/LazyVim) 的个人定制 
 
 ![WindVim 动态启动页](docs/screenshots/dashboard-animation.gif)
 
-打开项目后，可以在目录树、代码编辑和搜索预览之间切换：
+打开项目后，在代码旁查看中文快捷键菜单，或通过插件管理面板维护扩展：
 
-![项目代码编辑](docs/screenshots/project-code.png)
+![项目中的中文快捷键菜单](docs/screenshots/which-key-zh.png)
 
-![项目文件搜索与代码预览](docs/screenshots/picker-zh.png)
+![中文插件管理](docs/screenshots/lazy-zh.png)
 
 更多界面见[截图集](docs/GALLERY.md)。
 

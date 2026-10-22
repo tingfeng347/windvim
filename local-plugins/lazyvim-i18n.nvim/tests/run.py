@@ -28,7 +28,7 @@ font = ImageFont.truetype(font_path, 18)
 braille_path = os.environ.get("I18N_BRAILLE_FONT", "/usr/share/fonts/TTF/DejaVuSans.ttf")
 braille_font = ImageFont.truetype(braille_path, 18) if Path(braille_path).is_file() else font
 grids, colors = {}, {0: {}}
-animation_frames = []
+animation_frames = {}
 glyph_masks = {}
 default_fg, default_bg = "#cdd6f4", "#1e1e2e"
 
@@ -95,10 +95,11 @@ def notification(method, args):
                         ImageDraw.Draw(mask).text((0, 0), char, font=cell_font, fill=255)
                         glyph_masks[key] = mask
                     image.paste(fg, (x * 11, y * 25, x * 11 + 33, y * 25 + 25), glyph_masks[key])
-        if args[0] == "dashboard-animation":
-            animation_frames.append(image.convert("P", palette=Image.Palette.ADAPTIVE, colors=64))
-            if len(animation_frames) % 12 == 0:
-                print(f"Captured animation: {len(animation_frames)} frames", flush=True)
+        if args[0] in {"dashboard-animation", "dashboard-animation-en"}:
+            frames = animation_frames.setdefault(args[0], [])
+            frames.append(image.convert("P", palette=Image.Palette.ADAPTIVE, colors=64))
+            if len(frames) % 12 == 0:
+                print(f"Captured {args[0]}: {len(frames)} frames", flush=True)
         else:
             image.save(output / f"{args[0]}.png")
 
@@ -133,8 +134,8 @@ with tempfile.TemporaryDirectory(prefix="windvim-i18n-test-") as tmp:
     except EOFError:
         pass
     report = result.read_text() if result.exists() else "FAIL: Neovim exited without a result"
-    if animation_frames:
-        animation_frames[0].save(output / "dashboard-animation.gif", save_all=True,
-                                 append_images=animation_frames[1:], duration=120, loop=0, disposal=2)
+    for name, frames in animation_frames.items():
+        frames[0].save(output / f"{name}.gif", save_all=True,
+                       append_images=frames[1:], duration=120, loop=0, disposal=2)
     print(report)
     raise SystemExit(0 if report.startswith("PASS") else 1)

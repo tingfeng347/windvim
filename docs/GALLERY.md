@@ -1,6 +1,6 @@
 # 界面预览
 
-[返回首页](../README.md)
+**简体中文** · [English](GALLERY.en.md) · [返回首页](../README.md)
 
 启动页独立展示彩色动态标识；代码编辑、中文菜单和文件搜索以 WindVim 自身的源码项目作为演示。以下画面均来自实际 Neovim 界面。
 
@@ -30,8 +30,4 @@
 
 ![中文插件管理](screenshots/lazy-zh.png)
 
-## 英文界面
-
-启动页和常用界面可以切换为英文。
-
-![英文启动页](screenshots/dashboard-en.png)
+英文启动页、快捷键菜单与插件管理见 [English gallery](GALLERY.en.md)。

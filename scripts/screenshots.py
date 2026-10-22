@@ -35,7 +35,8 @@ with tempfile.TemporaryDirectory(prefix='windvim-screenshots-') as tmp:
     subprocess.run([os.sys.executable, str(root / 'local-plugins/lazyvim-i18n.nvim/tests/run.py')],
                    env=env, check=True, timeout=120)
     for name in ['dashboard-zh.png', 'dashboard-en.png', 'dashboard-animation.gif', 'project-code.png',
-                 'which-key-zh.png', 'picker-zh.png', 'lazy-zh.png']:
+                 'which-key-zh.png', 'picker-zh.png', 'lazy-zh.png', 'dashboard-animation-en.gif',
+                 'which-key-en.png', 'picker-en.png', 'lazy-en.png']:
         path = root / 'docs/screenshots' / name
         if not path.is_file() or path.stat().st_mtime < started:
             raise RuntimeError(f'Screenshot was not refreshed: {name}')
