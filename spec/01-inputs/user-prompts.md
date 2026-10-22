@@ -49,3 +49,9 @@
 > [Image #1]颜色可以改为彩色的，但是要设计的好看一点，logo
 
 附件：`/tmp/codex-clipboard-3fNaEN.png`（当前动态 W 标识截图）。
+
+## 2026-10-22 · 项目演示截图
+
+> [Image #1]演示的截图调整一下，现在不太好看，可以打开一个项目，例如这样做演示[Image #2]
+
+附件：`/tmp/codex-clipboard-I0jGIa.png`（当前并排预览）；`/tmp/codex-clipboard-X5TVbC.png`（项目目录树与启动页示例）。

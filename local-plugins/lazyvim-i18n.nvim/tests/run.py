@@ -11,7 +11,7 @@ import pynvim
 from PIL import Image, ImageDraw, ImageFont
 
 root = Path(__file__).resolve().parents[3]
-os.chdir(root)
+os.chdir(os.environ.get("I18N_TEST_CWD", root))
 output = Path(os.environ.get("I18N_SCREENSHOT_DIR", root / ".tests/i18n")).resolve()
 output.mkdir(parents=True, exist_ok=True)
 font_candidates = [
@@ -29,6 +29,7 @@ braille_path = os.environ.get("I18N_BRAILLE_FONT", "/usr/share/fonts/TTF/DejaVuS
 braille_font = ImageFont.truetype(braille_path, 18) if Path(braille_path).is_file() else font
 grids, colors = {}, {0: {}}
 animation_frames = []
+glyph_masks = {}
 default_fg, default_bg = "#cdd6f4", "#1e1e2e"
 
 
@@ -72,7 +73,7 @@ def notification(method, args):
                             grids[grid][row][col] = (cell[0], hl)
                             col += 1
     elif method == "i18n_snapshot":
-        rows = grids[1]
+        rows = args[1] if len(args) > 1 else grids[1]
         image = Image.new("RGB", (len(rows[0]) * 11, len(rows) * 25), default_bg)
         draw = ImageDraw.Draw(image)
         for y, row in enumerate(rows):
@@ -88,9 +89,16 @@ def notification(method, args):
                 fg = color(attrs.get("background" if attrs.get("reverse") else "foreground"), default_fg)
                 cell_font = braille_font if char and 0x2800 <= ord(char[0]) <= 0x28FF else font
                 if char.strip():
-                    draw.text((x * 11, y * 25), char, font=cell_font, fill=fg)
+                    key = (char, cell_font is braille_font)
+                    if key not in glyph_masks:
+                        mask = Image.new("L", (33, 25))
+                        ImageDraw.Draw(mask).text((0, 0), char, font=cell_font, fill=255)
+                        glyph_masks[key] = mask
+                    image.paste(fg, (x * 11, y * 25, x * 11 + 33, y * 25 + 25), glyph_masks[key])
         if args[0] == "dashboard-animation":
             animation_frames.append(image.convert("P", palette=Image.Palette.ADAPTIVE, colors=64))
+            if len(animation_frames) % 12 == 0:
+                print(f"Captured animation: {len(animation_frames)} frames", flush=True)
         else:
             image.save(output / f"{args[0]}.png")
 
@@ -109,11 +117,19 @@ with tempfile.TemporaryDirectory(prefix="windvim-i18n-test-") as tmp:
     nvim = pynvim.attach(
         "child", argv=[os.environ.get("NVIM_BIN", "nvim"), "--embed", "-i", "NONE", "--cmd", disable_checker]
     )
-    nvim.ui_attach(140, 45, rgb=True, ext_linegrid=True)
+    nvim.ui_attach(int(os.environ.get("I18N_UI_WIDTH", "140")),
+                   int(os.environ.get("I18N_UI_HEIGHT", "45")), rgb=True, ext_linegrid=True)
     nvim.vars["i18n_test_channel"] = nvim.channel_id
-    nvim.exec_lua('dofile("local-plugins/lazyvim-i18n.nvim/tests/integration.lua")')
+    test_script = os.environ.get("I18N_TEST_SCRIPT", "local-plugins/lazyvim-i18n.nvim/tests/integration.lua")
+    nvim.exec_lua("dofile(...)", test_script)
+    def request(method, args):
+        if method != "i18n_snapshot":
+            raise RuntimeError(f"Unexpected Neovim request: {method}")
+        notification(method, args)
+        return True
+
     try:
-        nvim.run_loop(None, notification)
+        nvim.run_loop(request, notification)
     except EOFError:
         pass
     report = result.read_text() if result.exists() else "FAIL: Neovim exited without a result"

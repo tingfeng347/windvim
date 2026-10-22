@@ -13,9 +13,8 @@ python3 -m unittest discover -s tests -v
 # 安装并启动过 WindVim 后，测试实际 UI；需要 uv 和可显示中文的字体
 uv run --with pynvim --with pillow python local-plugins/lazyvim-i18n.nvim/tests/run.py
 
-# 导出本 README 使用的真实界面截图
-I18N_SCREENSHOT_DIR="$PWD/docs/screenshots" \
-  uv run --with pynvim --with pillow python local-plugins/lazyvim-i18n.nvim/tests/run.py
+# 重新录制 README 和图库的项目演示
+uv run --with pynvim --with pillow python scripts/screenshots.py
 ```
 
 可用 `I18N_TEST_FONT=/path/to/font.ttf` 指定字体。测试会开独立 Neovim 子进程，使用临时语言状态，验证面板汉化、中英切换、窄屏布局与卸载恢复，不修改生产语言选择。
@@ -54,4 +53,8 @@ WindVim 从 [dotfiles](https://github.com/tingfeng347/dotfiles) 的 LazyVim 模�
 
 `lua/windvim/logo.lua` 使用小型深度缓冲绘制管状 W、风环和粒子，每 120ms 更新一次字符覆盖层；菜单缓冲区和光标保持稳定。动画在后台、窄窗口或低高度终端暂停，`WINDVIM_ANIMATION=0` 可保持静态。
 
-动态预览由真实 Neovim UI 网格录制。在截图命令前添加 `WINDVIM_CAPTURE_ANIMATION=1`，同时输出 `dashboard-animation.gif`。
+演示素材使用 `scripts/screenshots.py` / `scripts/screenshots.lua` 录制，复用 UI 网格捕获器。脚本创建独立 XDG 配置与临时项目克隆，打开 WindVim 自身，依次拍摄目录树与启动页、源码、文件快捷键、搜索预览和插件管理；不会部署到本机配置。默认使用 144 × 38 的界面尺寸，录制期间临时关闭消息浮层，导出图片放在 `docs/screenshots/`。
+
+运行前需要 WindVim 已安装插件。默认读取本机 WindVim 的数据目录，也可通过 `WINDVIM_DEMO_DATA=/path/to/data` 指定兼容的插件缓存。演示项目取自本地 Git 的 HEAD；需要展示新的源码时先提交它。渲染器继续支持 `I18N_TEST_FONT` 指定字体。
+
+汉化集成测试的默认输出保留在 `.tests/i18n/`，与文档演示分开。若单独向测试脚本设置 `WINDVIM_CAPTURE_ANIMATION=1`，也能录制测试场景中的启动页动图。

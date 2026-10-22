@@ -27,14 +27,13 @@ WindVim 是基于 [LazyVim](https://github.com/LazyVim/LazyVim) 的个人定制 
 - **完整的视觉定制**：Catppuccin 透明主题、Markdown 渲染与专属动态启动页，彩色 W 标识搭配有深度的风环与流动粒子。
 - **配置独立、方便修改**：安装时保护已有目录，显式覆盖会先备份；主题、快捷键与本地汉化层都可单独调整。
 
-![WindVim 动态启动页](docs/screenshots/dashboard-animation.gif)
+![项目目录与动态启动页](docs/screenshots/dashboard-animation.gif)
 
-<table>
-  <tr>
-    <td><img src="docs/screenshots/which-key-zh.png" alt="中文快捷键菜单"><br>中文快捷键菜单</td>
-    <td><img src="docs/screenshots/picker-zh.png" alt="文件搜索与预览"><br>文件搜索与预览</td>
-  </tr>
-</table>
+打开项目后，可以在目录树、代码编辑和搜索预览之间切换：
+
+![项目代码编辑](docs/screenshots/project-code.png)
+
+![项目文件搜索与代码预览](docs/screenshots/picker-zh.png)
 
 更多界面见[截图集](docs/GALLERY.md)。
 

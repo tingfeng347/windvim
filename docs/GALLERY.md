@@ -2,19 +2,36 @@
 
 [返回首页](../README.md)
 
-以下图片由实际 Neovim UI 网格捕获，使用仓库锁定的插件版本；终端背景与字体会影响最终效果。
+以 WindVim 自身的源码项目作为演示，展示目录浏览、代码编辑、中文菜单和文件搜索。以下画面均来自实际 Neovim 界面。
 
-![WindVim 动态启动页](screenshots/dashboard-animation.gif)
+## 项目目录与动态启动页
 
-![WindVim 中文启动页](screenshots/dashboard-zh.png)
+![项目目录与动态启动页](screenshots/dashboard-animation.gif)
 
-<table>
-  <tr>
-    <td><img src="screenshots/which-key-zh.png" alt="中文快捷键菜单" /><br /><strong>中文快捷键菜单</strong> · 原有键位与动作保留</td>
-    <td><img src="screenshots/picker-zh.png" alt="中文文件选择器" /><br /><strong>文件选择器</strong> · 中文标题与路径原文</td>
-  </tr>
-  <tr>
-    <td><img src="screenshots/lazy-zh.png" alt="中文 Lazy 插件管理器" /><br /><strong>插件管理</strong> · 汉化常用操作与帮助</td>
-    <td><img src="screenshots/dashboard-en.png" alt="英文启动页" /><br /><strong>运行时切换英文</strong> · 自动保存语言选择</td>
-  </tr>
-</table>
+## 项目代码编辑
+
+左侧浏览项目目录，右侧编辑动态标识的 Lua 源码，顶部显示已打开的文件。
+
+![项目代码编辑](screenshots/project-code.png)
+
+## 中文快捷键菜单
+
+在编辑界面中查看文件导航相关快捷键。
+
+![中文文件导航快捷键](screenshots/which-key-zh.png)
+
+## 文件搜索与代码预览
+
+在项目中查找 Lua 文件，并直接预览对应源码。
+
+![项目文件搜索与代码预览](screenshots/picker-zh.png)
+
+## 插件管理
+
+![中文插件管理](screenshots/lazy-zh.png)
+
+## 英文界面
+
+同一个项目工作区可以切换为英文。
+
+![英文项目启动页](screenshots/dashboard-en.png)
