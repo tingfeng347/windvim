@@ -69,13 +69,22 @@ backup() {
 backup "${CONFIG_HOME%/}/$APPNAME"
 if [ "$LAUNCHER" -eq 1 ]; then
     LAUNCHER_PATH="${BIN_DIR%/}/windvim"
-    EXPECTED="$(cat <<LAUNCH
+    LEGACY_EXPECTED="$(cat <<LAUNCH
 #!/usr/bin/env sh
 export NVIM_APPNAME='$APPNAME'
 exec "\${NVIM_BIN:-nvim}" "\$@"
 LAUNCH
 )"
-    if [ -f "$LAUNCHER_PATH" ] && [ ! -L "$LAUNCHER_PATH" ] && [ "$(cat "$LAUNCHER_PATH")" = "$EXPECTED" ]; then
+    EXPECTED="$(cat <<LAUNCH
+#!/usr/bin/env sh
+export NVIM_APPNAME='$APPNAME'
+if [ -z "\${NVIM_BIN:-}" ] && [ -x "\${XDG_DATA_HOME:-\$HOME/.local/share}/windvim-tools/neovim/bin/nvim" ]; then
+    NVIM_BIN="\${XDG_DATA_HOME:-\$HOME/.local/share}/windvim-tools/neovim/bin/nvim"
+fi
+exec "\${NVIM_BIN:-nvim}" "\$@"
+LAUNCH
+)"
+    if [ -f "$LAUNCHER_PATH" ] && [ ! -L "$LAUNCHER_PATH" ] && { [ "$(cat "$LAUNCHER_PATH")" = "$EXPECTED" ] || [ "$(cat "$LAUNCHER_PATH")" = "$LEGACY_EXPECTED" ]; }; then
         backup "$LAUNCHER_PATH"
     elif [ -e "$LAUNCHER_PATH" ] || [ -L "$LAUNCHER_PATH" ]; then
         printf 'Kept unrelated launcher: %s\n' "$LAUNCHER_PATH"

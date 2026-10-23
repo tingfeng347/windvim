@@ -112,7 +112,8 @@ class UninstallTests(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which('nvim') and shutil.which('rsync'), 'requires nvim and rsync')
     def test_removes_launcher_from_actual_installer(self):
-        result = subprocess.run(['bash', str(ROOT / 'install.sh'), '--force', '--no-path'], env=self.env,
+        env = dict(self.env, NVIM_BIN=shutil.which('nvim'))
+        result = subprocess.run(['bash', str(ROOT / 'install.sh'), '--force', '--no-path', '--no-deps'], env=env,
                                 text=True, capture_output=True, timeout=30)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.uninstall()

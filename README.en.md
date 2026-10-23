@@ -47,7 +47,7 @@ See the [gallery](docs/GALLERY.en.md) for more views.
 
 ## Install
 
-> **Requirements**: Neovim ≥ 0.11.2 with LuaJIT, Git and `rsync`. See the [usage guide (Chinese)](docs/USAGE.md) for full dependencies and platform notes.
+> **Automatic dependencies**: `./install.sh` detects your platform and installs missing Neovim, Git, `rsync`, search and build tools. System packages on Linux require root or sudo; macOS requires Homebrew first. See the [usage guide (Chinese)](docs/USAGE.md) for supported platforms and optional tools. Cloning requires Git; a source archive is also available.
 
 ```bash
 git clone https://github.com/tingfeng347/windvim.git
@@ -57,7 +57,7 @@ cd windvim
 LAZYVIM_LANGUAGE=en windvim
 ```
 
-The installer uses the independent `~/.config/windvim` directory without sudo and automatically adds the launcher directory to your Bash, Zsh or Fish PATH configuration. Open a new terminal and run `windvim`. On first launch, plugins are downloaded from GitHub. Use `./install.sh` if you already have the source locally.
+The installer uses the independent `~/.config/windvim` directory and automatically adds the launcher directory to your Bash, Zsh or Fish PATH configuration. Open a new terminal and run `windvim`. On Ubuntu / Debian, a missing or outdated Neovim is replaced for WindVim by a checksum-verified official v0.11.5 binary without overwriting the system Neovim. Satisfied dependencies are skipped; use `./install.sh --no-deps` to disable automatic installation. On first launch, plugins are downloaded from GitHub. Use `./install.sh` if you already have the source locally.
 
 `LAZYVIM_LANGUAGE=en` selects English for that launch. To save English as your preference, run `:LazyVimLanguage en` inside WindVim; later launches can use `windvim` without the environment variable.
 
@@ -81,7 +81,7 @@ windvim README.md
 
 The installer cannot change an already open terminal's environment. Use `~/.local/bin/windvim` in that terminal, or open a new terminal and run `windvim`. Existing shell configuration files are backed up before changes, and repeated installations do not add duplicate configuration. Use `--no-path` to skip automatic PATH setup.
 
-For a `--no-launcher` installation, run `NVIM_APPNAME=windvim nvim`. If you also used `--appname my-windvim`, run `NVIM_APPNAME=my-windvim nvim`. The default `windvim` launcher selects the application name used during installation automatically. Keep the same XDG environment variables when launching a custom XDG installation, and use the launcher in your chosen directory if you set `WINDVIM_BIN_DIR`.
+For a `--no-launcher` installation, use the installer's `Start:` command, which includes the selected Neovim path and application name. The default `windvim` launcher selects the application name and downloaded Neovim automatically. Keep the same XDG environment variables when launching a custom XDG installation, and use the launcher in your chosen directory if you set `WINDVIM_BIN_DIR`. Keep `NVIM_BIN` set when launching if you chose a custom executable.
 
 Wait for plugin installation on the first launch. On the dashboard, press `f` to find a file, `n` to create one, or `q` to quit. While editing, press `Esc`, type `:wq` and press Enter to save and close the current window.
 
@@ -106,7 +106,7 @@ Close WindVim, then run from the source checkout:
 ./uninstall.sh --purge
 ```
 
-The script moves the configuration and matching launcher to timestamped backups. Plugin data, cache and state are kept unless `--purge` is specified; configuration backups remain. Use `--appname NAME` for a custom installation, or `--no-launcher` to keep the launcher. XDG paths and `WINDVIM_BIN_DIR` are supported.
+The script moves the configuration and matching launcher to timestamped backups. Plugin data, cache and state are kept unless `--purge` is specified; configuration backups remain. System packages and the downloaded Neovim tools directory are retained. Use `--appname NAME` for a custom installation, or `--no-launcher` to keep the launcher. XDG paths and `WINDVIM_BIN_DIR` are supported.
 
 ## Keymaps
 

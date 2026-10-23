@@ -22,6 +22,8 @@ uv run --with pynvim --with pillow python scripts/screenshots.py --ai
 
 可用 `I18N_TEST_FONT=/path/to/font.ttf` 指定字体。测试会开独立 Neovim 子进程，使用临时语言状态，验证面板汉化、中英切换、窄屏布局与卸载恢复，不修改生产语言选择。
 
+`tests/test_dependencies.py` 使用模拟包管理器和本地下载样本验证平台识别、权限选择与校验失败；安装器回归测试使用 `--no-deps`。运行测试不会安装或升级宿主机的系统包。
+
 ## 源码分发
 
 用户可通过 [GitHub 公开仓库](https://github.com/tingfeng347/windvim) 克隆或下载源码包安装。提交改动后，也可以生成包含文档和截图的分享包：

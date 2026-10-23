@@ -47,7 +47,7 @@ WindVim 是基于 [LazyVim](https://github.com/LazyVim/LazyVim) 的个人定制 
 
 ## 安装
 
-> **前置要求**：Neovim ≥ 0.11.2（LuaJIT）、Git、`rsync`。完整依赖见[使用说明](docs/USAGE.md)。
+> **自动安装依赖**：`./install.sh` 会识别系统并补齐 Neovim、Git、`rsync`、搜索工具与编译工具。Linux 安装系统包时需要 root 或 sudo；macOS 需先安装 Homebrew。平台范围及可选依赖见[使用说明](docs/USAGE.md#准备依赖)。克隆仓库前需要 Git，也可下载源码压缩包。
 
 从 GitHub 安装：
 
@@ -59,7 +59,7 @@ cd windvim
 windvim
 ```
 
-默认使用独立配置 `~/.config/windvim`，安装器不使用 sudo，并自动将启动器目录加入 Bash、Zsh 或 Fish 的 PATH 配置。安装后打开新终端，输入 `windvim` 即可启动。首次启动自动下载插件，需要能访问 GitHub。已有源码目录时可直接运行 `./install.sh`。
+默认使用独立配置 `~/.config/windvim`，并自动将启动器目录加入 Bash、Zsh 或 Fish 的 PATH 配置。安装后打开新终端，输入 `windvim` 即可启动。Ubuntu / Debian 缺少合适版本的 Neovim 时，会下载并校验官方 v0.11.5 二进制，不覆盖系统 Neovim。依赖已满足时跳过安装；使用 `./install.sh --no-deps` 可关闭自动安装。首次启动自动下载插件，需要能访问 GitHub。已有源码目录时可直接运行 `./install.sh`。
 
 安装选项、源码压缩包下载及各系统依赖见[使用说明](docs/USAGE.md)。Copilot 与 AI CLI 需要各自登录，常规编辑功能可以独立使用。
 
@@ -81,7 +81,7 @@ windvim README.md
 
 安装脚本无法更改已经打开的终端环境；当前终端可先运行 `~/.local/bin/windvim`，或打开新终端后直接运行 `windvim`。Shell 配置修改前会备份，重复安装不会重复添加相同配置。使用 `--no-path` 可跳过自动 PATH 设置。
 
-使用 `--no-launcher` 安装时，通过 `NVIM_APPNAME=windvim nvim` 启动；若同时指定了 `--appname my-windvim`，则使用 `NVIM_APPNAME=my-windvim nvim`。默认创建的 `windvim` 启动器会自动选择安装时的应用名。自定义 XDG 路径时，启动需使用安装时相同的环境变量；自定义启动器目录则使用该目录中的 `windvim`。
+使用 `--no-launcher` 安装时，执行安装器输出的 `Start:` 命令，其中会包含所选 Neovim 路径和应用名。默认创建的 `windvim` 启动器会自动选择安装时的应用名及下载的 Neovim。自定义 XDG 路径时，启动需使用安装时相同的环境变量；自定义启动器目录则使用该目录中的 `windvim`。使用自定义 `NVIM_BIN` 时，启动时也需保留该变量。
 
 首次启动请等待插件安装完成。首页按 `f` 查找文件、`n` 新建文件、`q` 退出；编辑文件时按 `Esc` 后输入 `:wq` 并回车，可保存并关闭当前窗口。
 
@@ -106,7 +106,7 @@ git pull --ff-only
 ./uninstall.sh --purge
 ```
 
-默认将配置和匹配的启动器移为带时间戳的备份，保留插件数据、缓存和状态；`--purge` 清理这些数据，配置备份仍保留。自定义安装名使用 `--appname NAME`；`--no-launcher` 保留启动器。脚本支持 XDG 路径和 `WINDVIM_BIN_DIR`，仅处理指定应用，详见[使用说明](docs/USAGE.md#更新定制与卸载)。
+默认将配置和匹配的启动器移为带时间戳的备份，保留插件数据、缓存和状态；`--purge` 清理这些数据，配置备份仍保留。系统依赖与下载的 Neovim 工具目录保留。自定义安装名使用 `--appname NAME`；`--no-launcher` 保留启动器。脚本支持 XDG 路径和 `WINDVIM_BIN_DIR`，仅处理指定应用，详见[使用说明](docs/USAGE.md#更新定制与卸载)。
 
 ## 快捷键
 

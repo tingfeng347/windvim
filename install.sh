@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# WindVim installer. Copies config only; Neovim installs plugins on first launch.
+# WindVim installer. Bootstraps dependencies; plugins install on first launch.
 set -euo pipefail
 
 SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
@@ -7,20 +7,25 @@ APPNAME=windvim
 FORCE=0
 LAUNCHER=1
 SETUP_PATH=1
+INSTALL_DEPS=1
+NVIM_EXPLICIT=0
+[ -z "${NVIM_BIN:-}" ] || NVIM_EXPLICIT=1
 NVIM_BIN="${NVIM_BIN:-nvim}"
 
 usage() {
     cat <<'HELP'
-Usage: ./install.sh [--appname NAME] [--force] [--no-launcher] [--no-path]
+Usage: ./install.sh [--appname NAME] [--force] [--no-launcher] [--no-path] [--no-deps]
 
   --appname NAME   Isolated Neovim config name (default: windvim)
   --force          Back up an existing config/launcher before replacing it
   --no-launcher    Do not create ~/.local/bin/windvim
   --no-path        Do not update shell startup files
+  --no-deps        Only check core dependencies; do not install missing tools
 
 Adds the launcher directory to PATH for Bash, Zsh or Fish on new terminals.
-Honors XDG_CONFIG_HOME, WINDVIM_BIN_DIR, NVIM_BIN, SHELL and ZDOTDIR.
-No sudo required.
+Honors XDG_CONFIG_HOME, XDG_DATA_HOME, WINDVIM_BIN_DIR, NVIM_BIN, SHELL and ZDOTDIR.
+Missing system packages are installed using root/sudo or Homebrew on macOS.
+Ubuntu/Debian use a verified official Neovim binary in the user's data directory.
 Plugins are downloaded on first launch; this script never updates plugins.
 HELP
 }
@@ -31,20 +36,17 @@ while [ "$#" -gt 0 ]; do
         --force) FORCE=1; shift ;;
         --no-launcher) LAUNCHER=0; shift ;;
         --no-path) SETUP_PATH=0; shift ;;
+        --no-deps) INSTALL_DEPS=0; shift ;;
         -h|--help) usage; exit 0 ;;
         *) fail "Unknown option: $1" ;;
     esac
 done
 [[ "$APPNAME" =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*$ ]] || fail 'App name must contain only letters, digits, _ or -'
-for tool in "$NVIM_BIN" rsync git; do
-    command -v "$tool" >/dev/null 2>&1 || fail "Missing dependency: $tool (see README.md)"
-done
-"$NVIM_BIN" --clean --headless -i NONE \
-    '+lua if vim.fn.has("nvim-0.11.2") == 0 or not jit then vim.cmd("cquit 1") end' +qa \
-    || fail 'Neovim >= 0.11.2 with LuaJIT is required'
 CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 BIN_DIR="${WINDVIM_BIN_DIR:-$HOME/.local/bin}"
-[[ "$CONFIG_HOME" = /* && "$BIN_DIR" = /* ]] || fail 'Config and bin paths must be absolute'
+TOOLS_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/windvim-tools"
+MANAGED_NVIM="$TOOLS_DIR/neovim/bin/nvim"
+[[ "$CONFIG_HOME" = /* && "$BIN_DIR" = /* && "$TOOLS_DIR" = /* ]] || fail 'Config, data and bin paths must be absolute'
 mkdir -p "$CONFIG_HOME"
 CONFIG_HOME="$(cd "$CONFIG_HOME" && pwd -P)"
 DEST="$CONFIG_HOME/$APPNAME"
@@ -57,6 +59,9 @@ if [ "$FORCE" -eq 0 ]; then
         [ ! -e "$LAUNCHER_PATH" ] && [ ! -L "$LAUNCHER_PATH" ] || fail "Launcher already exists: $LAUNCHER_PATH (use --force to back it up)"
     fi
 fi
+# Refuse conflicting destinations before installing any packages.
+. "$SOURCE_DIR/scripts/dependencies.sh"
+ensure_dependencies
 STAGING="$(mktemp -d "$CONFIG_HOME/.windvim-install.XXXXXX")"
 trap 'rm -rf "$STAGING"' EXIT
 # An allowlist keeps docs, screenshots, Git metadata and development artifacts out.
@@ -80,6 +85,9 @@ if [ "$LAUNCHER" -eq 1 ]; then
     cat > "$LAUNCHER_PATH" <<LAUNCH
 #!/usr/bin/env sh
 export NVIM_APPNAME='$APPNAME'
+if [ -z "\${NVIM_BIN:-}" ] && [ -x "\${XDG_DATA_HOME:-\$HOME/.local/share}/windvim-tools/neovim/bin/nvim" ]; then
+    NVIM_BIN="\${XDG_DATA_HOME:-\$HOME/.local/share}/windvim-tools/neovim/bin/nvim"
+fi
 exec "\${NVIM_BIN:-nvim}" "\$@"
 LAUNCH
     chmod +x "$LAUNCHER_PATH"
@@ -148,7 +156,7 @@ if [ "$LAUNCHER" -eq 1 ] && [ "$SETUP_PATH" -eq 1 ]; then
     setup_path
 fi
 printf 'Installed WindVim: %s\n' "$DEST"
-printf 'Start: NVIM_APPNAME=%s %s\n' "$APPNAME" "$NVIM_BIN"
+printf 'Start: NVIM_APPNAME=%s %q\n' "$APPNAME" "$NVIM_BIN"
 if [ "$LAUNCHER" -eq 1 ]; then
     printf 'Launcher: %s\n' "$LAUNCHER_PATH"
 fi

@@ -31,7 +31,7 @@ with tempfile.TemporaryDirectory(prefix='windvim-screenshots-') as tmp:
                I18N_TEST_SCRIPT=str(root / 'scripts/screenshots.lua'),
                I18N_SCREENSHOT_DIR=str(root / 'docs/screenshots'), I18N_UI_WIDTH='144', I18N_UI_HEIGHT='38')
     env.pop('NO_COLOR', None)
-    subprocess.run(['bash', str(root / 'install.sh'), '--no-launcher'], env=env, check=True)
+    subprocess.run(['bash', str(root / 'install.sh'), '--no-launcher', '--no-deps'], env=env, check=True)
     data = base / 'data/windvim'
     data.mkdir(parents=True)
     for name in ['lazy', 'site', 'mason']:

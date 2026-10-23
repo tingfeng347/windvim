@@ -21,7 +21,7 @@ class InstallTests(unittest.TestCase):
         self.home = self.base / 'home'
         self.home.mkdir(parents=True)
         self.env = dict(os.environ, XDG_CONFIG_HOME=str(self.config), WINDVIM_BIN_DIR=str(self.bin),
-                        HOME=str(self.home), SHELL='/bin/bash')
+                        XDG_DATA_HOME=str(self.base / 'data'), HOME=str(self.home), SHELL='/bin/bash')
         self.env.pop('ZDOTDIR', None)
         self.env['NVIM_BIN'] = shutil.which('nvim')
         (self.config / 'nvim').mkdir(parents=True)
@@ -30,7 +30,7 @@ class InstallTests(unittest.TestCase):
         (self.config / 'lazyvim/user.lua').write_text('existing lazyvim config')
 
     def install(self, *args, success=True, env=None):
-        result = subprocess.run(['bash', str(ROOT / 'install.sh'), *args], env=env or self.env,
+        result = subprocess.run(['bash', str(ROOT / 'install.sh'), '--no-deps', *args], env=env or self.env,
                                 text=True, capture_output=True, timeout=30)
         self.assertEqual(result.returncode == 0, success, result.stdout + result.stderr)
         return result
@@ -107,6 +107,21 @@ class InstallTests(unittest.TestCase):
         self.install(env=dict(self.env, NVIM_BIN=str(old_nvim)), success=False)
         self.assertFalse((self.config / 'windvim').exists())
         self.assert_existing_configs()
+
+    def test_managed_neovim_is_used_by_installer_and_launcher(self):
+        managed = self.base / 'data/windvim-tools/neovim/bin/nvim'
+        managed.parent.mkdir(parents=True)
+        managed.write_text('#!/bin/sh\nif [ "$1" != --clean ]; then printf "%s\\n" "$NVIM_APPNAME" "$@"; fi\n')
+        managed.chmod(0o755)
+        env = dict(self.env)
+        env.pop('NVIM_BIN')
+        self.install(env=env)
+        output = subprocess.check_output([str(self.bin / 'windvim'), 'file name.lua'], env=env, text=True)
+        self.assertEqual(output.splitlines(), ['windvim', 'file name.lua'])
+
+    def test_relative_data_path_is_rejected(self):
+        self.install(env=dict(self.env, XDG_DATA_HOME='relative'), success=False)
+        self.assertFalse((self.config / 'windvim').exists())
 
     def test_bash_path_persists_without_duplicates_and_preserves_shell_config(self):
         rc = self.home / '.bashrc'
