@@ -8,6 +8,12 @@ The dashboard stands on its own; editing, key hints and file search use WindVim'
 
 ![English animated dashboard](screenshots/dashboard-animation-en.gif)
 
+## AI sidebar workspace
+
+Actual CLIs launched in an isolated demo environment: the WindVim project tree on the left, the dashboard in the middle, and Claude Code and Codex stacked in a single column on the right.
+
+![WindVim file tree, dashboard and AI panels on the right](screenshots/ai-workspace-en.png)
+
 ## Project editing
 
 Browse the project tree on the left and edit the logo's Lua source on the right.

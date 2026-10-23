@@ -136,7 +136,6 @@ return {
               desc = "配置",
               action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
             },
-            { icon = " ", key = "s", desc = "恢复会话", section = "session" },
             { icon = " ", key = "x", desc = "扩展管理", action = ":LazyExtras" },
             { icon = "󰒲 ", key = "l", desc = "插件管理", action = ":Lazy" },
             { icon = " ", key = "q", desc = "退出", action = ":qa" },

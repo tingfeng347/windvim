@@ -33,6 +33,10 @@ WindVim 是基于 [LazyVim](https://github.com/LazyVim/LazyVim) 的个人定制 
 
 ![WindVim 动态启动页](docs/screenshots/dashboard-animation.gif)
 
+右侧可同时打开 Claude Code 和 Codex，左侧保留文件树与主工作区：
+
+![WindVim 右侧堆叠 Claude Code 与 Codex 面板](docs/screenshots/ai-workspace-zh.png)
+
 打开项目后，在代码旁查看中文快捷键菜单，或通过插件管理面板维护扩展：
 
 ![项目中的中文快捷键菜单](docs/screenshots/which-key-zh.png)

@@ -33,6 +33,10 @@ It runs as the separate `windvim` application alongside your existing Neovim or 
 
 ![WindVim animated dashboard in English](docs/screenshots/dashboard-animation-en.gif)
 
+Stack Claude Code and Codex on the right while keeping the file tree and main workspace visible:
+
+![WindVim with Claude Code and Codex stacked on the right](docs/screenshots/ai-workspace-en.png)
+
 Open a project to browse key hints beside your code or manage extensions in the plugin manager:
 
 ![English key hints in a project](docs/screenshots/which-key-en.png)

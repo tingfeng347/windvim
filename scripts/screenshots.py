@@ -4,10 +4,16 @@ uv run --with pynvim --with pillow python scripts/screenshots.py
 WINDVIM_DEMO_DATA can point to a compatible, already installed plugin cache.
 """
 from pathlib import Path
+import argparse
 import os
 import subprocess
 import tempfile
 import time
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--ai', action='store_true', help='Also capture installed Claude Code and Codex in Sidekick')
+parser.add_argument('--ai-only', action='store_true', help='Capture only the AI workspace')
+args = parser.parse_args()
 
 root = Path(__file__).resolve().parents[1]
 data_home = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local/share'))
@@ -31,12 +37,20 @@ with tempfile.TemporaryDirectory(prefix='windvim-screenshots-') as tmp:
     for name in ['lazy', 'site', 'mason']:
         if (cache / name).is_dir():
             (data / name).symlink_to(cache / name, target_is_directory=True)
-    started = time.time()
-    subprocess.run([os.sys.executable, str(root / 'local-plugins/lazyvim-i18n.nvim/tests/run.py')],
-                   env=env, check=True, timeout=120)
-    for name in ['dashboard-zh.png', 'dashboard-en.png', 'dashboard-animation.gif', 'project-code.png',
+    captures = []
+    if not args.ai_only:
+        captures.append((env, ['dashboard-zh.png', 'dashboard-en.png', 'dashboard-animation.gif', 'project-code.png',
                  'which-key-zh.png', 'picker-zh.png', 'lazy-zh.png', 'dashboard-animation-en.gif',
-                 'which-key-en.png', 'picker-en.png', 'lazy-en.png']:
-        path = root / 'docs/screenshots' / name
-        if not path.is_file() or path.stat().st_mtime < started:
-            raise RuntimeError(f'Screenshot was not refreshed: {name}')
+                 'which-key-en.png', 'picker-en.png', 'lazy-en.png']))
+    if args.ai or args.ai_only:
+        captures.append((dict(env, I18N_TEST_SCRIPT=str(root / 'scripts/ai-workspace.lua'),
+                              I18N_UI_WIDTH='180', I18N_UI_HEIGHT='50'),
+                         ['ai-workspace-zh.png', 'ai-workspace-en.png']))
+    for capture_env, names in captures:
+        started = time.time()
+        subprocess.run([os.sys.executable, str(root / 'local-plugins/lazyvim-i18n.nvim/tests/run.py')],
+                       env=capture_env, check=True, timeout=120)
+        for name in names:
+            path = root / 'docs/screenshots' / name
+            if not path.is_file() or path.stat().st_mtime < started:
+                raise RuntimeError(f'Screenshot was not refreshed: {name}')

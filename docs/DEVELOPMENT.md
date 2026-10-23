@@ -15,6 +15,9 @@ uv run --with pynvim --with pillow python local-plugins/lazyvim-i18n.nvim/tests/
 
 # 重新录制 README 和图库的项目演示
 uv run --with pynvim --with pillow python scripts/screenshots.py
+
+# 同时录制右侧 Claude Code / Codex 双面板（需要已安装并配置两个 CLI）
+uv run --with pynvim --with pillow python scripts/screenshots.py --ai
 ```
 
 可用 `I18N_TEST_FONT=/path/to/font.ttf` 指定字体。测试会开独立 Neovim 子进程，使用临时语言状态，验证面板汉化、中英切换、窄屏布局与卸载恢复，不修改生产语言选择。
@@ -64,3 +67,5 @@ WindVim 从 [dotfiles](https://github.com/tingfeng347/dotfiles) 的 LazyVim 模�
 运行前需要 WindVim 已安装插件。默认读取本机 WindVim 的数据目录，也可通过 `WINDVIM_DEMO_DATA=/path/to/data` 指定兼容的插件缓存。演示项目取自本地 Git 的 HEAD；需要展示新的源码时先提交它。渲染器继续支持 `I18N_TEST_FONT` 指定字体。
 
 汉化集成测试的默认输出保留在 `.tests/i18n/`，与文档演示分开。若单独向测试脚本设置 `WINDVIM_CAPTURE_ANIMATION=1`，也能录制测试场景中的启动页动图。
+
+`scripts/screenshots.py --ai` 会额外运行 `scripts/ai-workspace.lua`，在独立的临时配置和项目中启动真实的 Claude Code 与 Codex，通过 Sidekick 在右侧上下堆叠；录制其待输入界面，不向 AI 提交任务。AI 工作区使用 180 × 50 的界面尺寸，中英文截图分别输出到 `docs/screenshots/ai-workspace-zh.png` 与 `ai-workspace-en.png`。只重拍 AI 工作区可使用 `--ai-only`。

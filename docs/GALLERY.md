@@ -8,6 +8,12 @@
 
 ![WindVim 动态启动页](screenshots/dashboard-animation.gif)
 
+## AI 侧栏工作区
+
+在独立演示环境中启动实际 CLI：左侧是 WindVim 项目文件树，中间是启动页，右侧同一列堆叠 Claude Code 和 Codex 面板。
+
+![WindVim 文件树、启动页与右侧 AI 面板](screenshots/ai-workspace-zh.png)
+
 ## 项目代码编辑
 
 左侧浏览项目目录，右侧编辑动态标识的 Lua 源码，顶部显示已打开的文件。
