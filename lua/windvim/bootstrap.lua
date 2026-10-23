@@ -51,7 +51,8 @@ function M.ensure(path)
       "git",
       "-c", "http.lowSpeedLimit=1",
       "-c", "http.lowSpeedTime=30",
-      "clone", "--filter=blob:none", "--single-branch", "--branch=stable",
+      -- stable is a tag: single-branch omits origin/HEAD, breaking lazy's lock writer.
+      "clone", "--filter=blob:none", "--branch=stable",
       "https://github.com/folke/lazy.nvim.git", staging,
     }, { text = true, env = { GIT_TERMINAL_PROMPT = "0" } }):wait(math.max(1, math.floor(seconds * 1000)))
   end)

@@ -113,6 +113,18 @@ tail -n 60 /tmp/windvim-startup.log
 
 这项诊断不会删除配置或插件；首次启动仍可能触发正常的插件安装。`timeout` 返回 124 表示达到诊断的等待上限，不代表已经定位到某个具体插件。分享日志前请移除令牌、代理凭据等敏感信息。
 
+### 首次安装报 `lazy/manage/lock.lua:28: assertion failed!`
+
+旧版首次下载逻辑曾使用 `--single-branch --branch=stable`。`stable` 是标签，这种克隆方式没有默认分支引用，导致 lazy.nvim 在保存锁文件时无法确定分支。新版恢复[官方克隆方式](https://lazy.folke.io/installation)，并显式配置 lazy.nvim 的 `main` 分支，兼容已经创建的标签克隆目录；后续 `:Lazy update` 会补齐缺失的分支引用。
+
+退出 WindVim 后，在源码目录执行以下命令。安装器会备份并更新配置，同时恢复项目中的有效锁文件，无需删除其他插件数据：
+
+```bash
+git pull --ff-only
+./install.sh --force
+windvim
+```
+
 ## 启动页动画
 
 启动页以薄荷青、天蓝、鸢尾紫到柔粉过渡的 W 为中心，保留明暗层次，暖金色粒子作点缀，风环与粒子循环流动。动画只更新标识区域，不改动菜单、光标或文件内容；打开其他面板、离开启动页或终端失焦时暂停，小窗口使用静态文字标识。

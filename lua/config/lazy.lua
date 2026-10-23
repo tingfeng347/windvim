@@ -6,6 +6,9 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   spec = {
+    -- Also supports existing stable-tag clones that have no origin/HEAD ref.
+    -- lazy.nvim's update pipeline will fetch this branch when it is missing.
+    { "folke/lazy.nvim", branch = "main" },
     -- add LazyVim and import its plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
     -- import/override with your plugins
