@@ -133,6 +133,8 @@ timer:start(150, 100, vim.schedule_wrap(function()
   if vim.bo.filetype == 'windvim-install' then
     local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
     local text = table.concat(lines, '\\n')
+    local install_hl = vim.api.nvim_get_hl(0, { name = 'WindVimInstallNormal', link = false })
+    assert(install_hl.bg == nil, 'installation homepage has an opaque background')
     saw_home = saw_home or text:find('正在准备 WindVim', 1, true) ~= nil
     local art = {}
     for _, line in ipairs(lines) do

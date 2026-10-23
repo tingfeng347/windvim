@@ -109,7 +109,9 @@ function M.open(log, retry)
   end
   logo.highlights()
   for name, opts in pairs({
-    WindVimInstallNormal = { fg = "#cdd6f4", bg = "#1e1e2e" },
+    -- Match the installed WindVim theme: keep the terminal background
+    -- visible instead of painting an opaque panel behind the homepage.
+    WindVimInstallNormal = { fg = "#cdd6f4", bg = "NONE" },
     WindVimInstallTitle = { fg = "#a6e3a1", bold = true },
     WindVimInstallText = { fg = "#cdd6f4" },
     WindVimInstallMuted = { fg = "#a6adc8" },
@@ -131,7 +133,8 @@ function M.open(log, retry)
     border = "none",
     zindex = 60,
   })
-  vim.wo[win].winhighlight = "Normal:WindVimInstallNormal,EndOfBuffer:WindVimInstallNormal"
+  vim.wo[win].winhighlight =
+    "Normal:WindVimInstallNormal,NormalNC:WindVimInstallNormal,EndOfBuffer:WindVimInstallNormal"
   vim.wo[win].wrap = false
   vim.wo[win].cursorline = false
   vim.keymap.set("n", "q", "<cmd>qa<cr>", { buffer = buf })
