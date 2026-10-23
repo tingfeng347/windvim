@@ -24,6 +24,8 @@ uv run --with pynvim --with pillow python scripts/screenshots.py --ai
 
 `tests/test_dependencies.py` 使用模拟包管理器和本地下载样本验证平台识别、权限选择与校验失败；安装器回归测试使用 `--no-deps`。运行测试不会安装或升级宿主机的系统包。
 
+`tests/test_startup.py` 使用真实 Neovim 和隔离的 XDG 目录，通过伪终端模拟首次下载卡住、超时、中断和重试，确认等待期间能看到文字。Git 使用本地替身，不会下载真实插件；可设置 `NVIM_BIN` 指定需要验证的 Neovim 版本。
+
 ## 源码分发
 
 用户可通过 [GitHub 公开仓库](https://github.com/tingfeng347/windvim) 克隆或下载源码包安装。提交改动后，也可以生成包含文档和截图的分享包：

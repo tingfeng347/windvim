@@ -93,6 +93,26 @@ windvim README.md
 
 首次启动等待插件安装完成后，首页按 `f` 查找文件、`n` 新建文件、`q` 退出。进入编辑界面后按空格再按 `e` 打开文件树；按 `Esc` 后输入 `:wq` 并回车，可保存并关闭当前窗口。
 
+### 首次启动停在空白界面
+
+首次启动需要从 GitHub 下载 `lazy.nvim`，然后才能安装其他插件。旧版配置在这次下载期间没有进度提示，网络慢或连接无响应时可能一直显示空白。新版会显示 `WindVim: first launch` 提示，首次下载默认最多等待 120 秒；失败时显示原因和日志路径，按任意键退出，网络恢复后重新运行 `windvim` 即可重试。下载使用独立临时目录，不完整的旧目录会在成功下载后先备份再替换。
+
+可以调整首次下载的超时时间，并查看最近一次失败记录（自定义应用名时替换路径中的 `windvim`）：
+
+```bash
+WINDVIM_BOOTSTRAP_TIMEOUT=30 windvim
+cat "${XDG_STATE_HOME:-$HOME/.local/state}/windvim/bootstrap.log"
+```
+
+已经安装插件管理器后若仍然空白，可在 Ubuntu 终端中收集启动日志：
+
+```bash
+WINDVIM_BOOTSTRAP_TIMEOUT=20 timeout 30s windvim --headless -V1/tmp/windvim-startup.log '+qa!'
+tail -n 60 /tmp/windvim-startup.log
+```
+
+这项诊断不会删除配置或插件；首次启动仍可能触发正常的插件安装。`timeout` 返回 124 表示达到诊断的等待上限，不代表已经定位到某个具体插件。分享日志前请移除令牌、代理凭据等敏感信息。
+
 ## 启动页动画
 
 启动页以薄荷青、天蓝、鸢尾紫到柔粉过渡的 W 为中心，保留明暗层次，暖金色粒子作点缀，风环与粒子循环流动。动画只更新标识区域，不改动菜单、光标或文件内容；打开其他面板、离开启动页或终端失焦时暂停，小窗口使用静态文字标识。
