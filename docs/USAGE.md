@@ -48,12 +48,12 @@ cd windvim-main
 cd windvim
 ./install.sh
 
-# 首次启动自动下载插件，需要能稳定访问 GitHub 的网络
-~/.local/bin/windvim
+# 安装后打开新终端；首次启动下载插件，需要能访问 GitHub
+windvim
 # 等价于：NVIM_APPNAME=windvim nvim
 ```
 
-将 `~/.local/bin` 加入 PATH 后可直接执行 `windvim`。安装器只复制配置和创建启动器，不使用 sudo、不自动安装系统依赖；已有目标会停止，使用 `./install.sh --force` 才会先备份再替换。
+安装器会创建启动器，并自动将其目录加入当前登录 Shell 的 PATH 配置，支持 Bash、Zsh、Fish。打开新终端后直接执行 `windvim`；已有终端可先使用 `~/.local/bin/windvim`。安装器不使用 sudo、不自动安装系统依赖；已有目标会停止，使用 `./install.sh --force` 才会先备份再替换。
 
 ```bash
 # 指定独立配置名，不创建启动器
@@ -66,6 +66,25 @@ NVIM_APPNAME=lazyvim nvim
 ```
 
 支持 `XDG_CONFIG_HOME`、`WINDVIM_BIN_DIR`（默认 `~/.local/bin`）、`NVIM_BIN`。配置目录默认 `~/.config/windvim`；数据、缓存和状态使用 Neovim 对应的 XDG 目录下的 `windvim` 子目录。
+
+## 安装后启动
+
+安装完成后打开新终端，无需回到源码目录，在任意目录运行 `windvim` 即可打开首页。进入自己的项目目录再启动，可让文件树、文件查找和 AI CLI 使用该项目作为工作目录：
+
+```bash
+cd /path/to/your/project
+windvim
+# 或直接打开项目中的文件
+windvim README.md
+```
+
+默认自动配置 PATH，无需手动编辑环境变量。Bash 写入 `~/.bashrc` 和当前使用的登录配置（优先 `.bash_profile`、其次 `.bash_login`、否则 `.profile`）；Zsh 写入 `${ZDOTDIR:-$HOME}/.zshrc` 与 `.zprofile`；Fish 写入 `${XDG_CONFIG_HOME:-$HOME/.config}/fish/conf.d/windvim-path.fish`。已有文件修改前会生成备份，重复安装不会重复写入相同配置。
+
+脚本无法修改父终端的环境，安装后需要打开新终端；若暂时不重开，可用 `~/.local/bin/windvim`。`--no-path` 跳过 PATH 设置，`--no-launcher` 同时跳过启动器和 PATH 设置。其他 Shell 会显示手动设置提示。卸载时保留 PATH 配置，便于该目录中的其他命令和后续重新安装继续使用。
+
+使用 `--no-launcher` 安装时，运行 `NVIM_APPNAME=windvim nvim`；自定义配置名则将 `windvim` 替换为安装时的 `--appname`，例如 `NVIM_APPNAME=my-windvim nvim`。直接运行 `nvim` 会使用它自己的默认配置。若安装时设置了自定义 XDG 路径，启动时继续使用相同环境变量；设置了 `WINDVIM_BIN_DIR` 则使用对应目录中的启动器。
+
+首次启动等待插件安装完成后，首页按 `f` 查找文件、`n` 新建文件、`q` 退出。进入编辑界面后按空格再按 `e` 打开文件树；按 `Esc` 后输入 `:wq` 并回车，可保存并关闭当前窗口。
 
 ## 启动页动画
 

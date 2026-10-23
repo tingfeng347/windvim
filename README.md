@@ -55,12 +55,35 @@ WindVim 是基于 [LazyVim](https://github.com/LazyVim/LazyVim) 的个人定制 
 git clone https://github.com/tingfeng347/windvim.git
 cd windvim
 ./install.sh
-~/.local/bin/windvim
+# 安装完成后打开新终端
+windvim
 ```
 
-默认使用独立配置 `~/.config/windvim`，安装器不使用 sudo。首次启动自动下载插件，需要能访问 GitHub；将 `~/.local/bin` 加入 PATH 后可直接运行 `windvim`。已有源码目录时可直接运行 `./install.sh`。
+默认使用独立配置 `~/.config/windvim`，安装器不使用 sudo，并自动将启动器目录加入 Bash、Zsh 或 Fish 的 PATH 配置。安装后打开新终端，输入 `windvim` 即可启动。首次启动自动下载插件，需要能访问 GitHub。已有源码目录时可直接运行 `./install.sh`。
 
 安装选项、源码压缩包下载及各系统依赖见[使用说明](docs/USAGE.md)。Copilot 与 AI CLI 需要各自登录，常规编辑功能可以独立使用。
+
+## 启动与使用
+
+安装完成后打开新终端，即可在任意目录输入 `windvim` 启动，无需回到源码目录：
+
+```bash
+# 打开首页
+windvim
+
+# 在项目目录中启动，再按空格 e 打开文件树
+cd /path/to/your/project
+windvim
+
+# 直接编辑文件
+windvim README.md
+```
+
+安装脚本无法更改已经打开的终端环境；当前终端可先运行 `~/.local/bin/windvim`，或打开新终端后直接运行 `windvim`。Shell 配置修改前会备份，重复安装不会重复添加相同配置。使用 `--no-path` 可跳过自动 PATH 设置。
+
+使用 `--no-launcher` 安装时，通过 `NVIM_APPNAME=windvim nvim` 启动；若同时指定了 `--appname my-windvim`，则使用 `NVIM_APPNAME=my-windvim nvim`。默认创建的 `windvim` 启动器会自动选择安装时的应用名。自定义 XDG 路径时，启动需使用安装时相同的环境变量；自定义启动器目录则使用该目录中的 `windvim`。
+
+首次启动请等待插件安装完成。首页按 `f` 查找文件、`n` 新建文件、`q` 退出；编辑文件时按 `Esc` 后输入 `:wq` 并回车，可保存并关闭当前窗口。
 
 ## 更新
 

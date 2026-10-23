@@ -18,7 +18,11 @@ class InstallTests(unittest.TestCase):
         self.base = Path(self.tmp.name) / 'paths with spaces'
         self.config = self.base / 'config'
         self.bin = self.base / 'bin'
-        self.env = dict(os.environ, XDG_CONFIG_HOME=str(self.config), WINDVIM_BIN_DIR=str(self.bin))
+        self.home = self.base / 'home'
+        self.home.mkdir(parents=True)
+        self.env = dict(os.environ, XDG_CONFIG_HOME=str(self.config), WINDVIM_BIN_DIR=str(self.bin),
+                        HOME=str(self.home), SHELL='/bin/bash')
+        self.env.pop('ZDOTDIR', None)
         self.env['NVIM_BIN'] = shutil.which('nvim')
         (self.config / 'nvim').mkdir(parents=True)
         (self.config / 'nvim/user.lua').write_text('existing nvim config')
@@ -80,6 +84,7 @@ class InstallTests(unittest.TestCase):
         self.assertTrue((self.config / 'windvim-test/init.lua').is_file())
         self.assertFalse((self.config / 'windvim').exists())
         self.assertFalse(self.bin.exists())
+        self.assertFalse((self.home / '.bashrc').exists())
         self.assert_existing_configs()
 
     def test_invalid_names_rejected_without_writing_config(self):
@@ -102,6 +107,71 @@ class InstallTests(unittest.TestCase):
         self.install(env=dict(self.env, NVIM_BIN=str(old_nvim)), success=False)
         self.assertFalse((self.config / 'windvim').exists())
         self.assert_existing_configs()
+
+    def test_bash_path_persists_without_duplicates_and_preserves_shell_config(self):
+        rc = self.home / '.bashrc'
+        rc.write_text('# user settings\nexport WINDVIM_TEST_SETTING=kept\n')
+        self.install()
+        backup, = self.home.glob('.bashrc.backup.*')
+        self.assertEqual(backup.read_text(), '# user settings\nexport WINDVIM_TEST_SETTING=kept\n')
+        original = rc.read_text()
+        self.install('--force')
+        self.assertEqual(rc.read_text(), original)
+        self.assertEqual(len(list(self.home.glob('.bashrc.backup.*'))), 1)
+        for file in (rc, self.home / '.profile'):
+            output = subprocess.check_output(
+                ['bash', '--noprofile', '--norc', '-c', '. "$1"; . "$1"; command -v windvim', '_', str(file)],
+                env=self.env, text=True)
+            self.assertEqual(output.strip(), str(self.bin / 'windvim'))
+
+    def test_no_path_leaves_shell_configs_untouched(self):
+        self.install('--no-path')
+        self.assertTrue((self.bin / 'windvim').is_file())
+        self.assertFalse((self.home / '.bashrc').exists())
+        self.assertFalse((self.home / '.profile').exists())
+
+    def test_bash_existing_login_profile_is_used(self):
+        profile = self.home / '.bash_profile'
+        profile.write_text('# custom login\n')
+        self.install()
+        self.assertIn('WindVim launcher PATH', profile.read_text())
+        self.assertFalse((self.home / '.profile').exists())
+
+    @unittest.skipUnless(shutil.which('zsh'), 'requires zsh')
+    def test_zsh_honors_zdotdir_and_resolves_launcher(self):
+        zdotdir = self.base / 'zsh settings'
+        env = dict(self.env, SHELL=shutil.which('zsh'), ZDOTDIR=str(zdotdir))
+        self.install(env=env)
+        self.assertTrue((zdotdir / '.zprofile').is_file())
+        output = subprocess.check_output(['zsh', '-i', '-c', 'command -v windvim'], env=env, text=True)
+        self.assertEqual(output.strip(), str(self.bin / 'windvim'))
+
+    @unittest.skipUnless(shutil.which('fish'), 'requires fish')
+    def test_fish_new_shell_resolves_launcher(self):
+        env = dict(self.env, SHELL=shutil.which('fish'))
+        self.install(env=env)
+        rc = self.config / 'fish/conf.d/windvim-path.fish'
+        self.assertTrue(rc.is_file())
+        output = subprocess.check_output(['fish', '-c', 'command -v windvim'], env=env, text=True)
+        self.assertEqual(output.strip(), str(self.bin / 'windvim'))
+
+    def test_shell_metacharacters_in_bin_directory_are_literal(self):
+        bin_dir = self.base / "bin ' quote $dollar `backtick` \\ slash"
+        for shell in ('bash', 'zsh', 'fish'):
+            executable = shutil.which(shell)
+            if not executable:
+                continue
+            with self.subTest(shell=shell):
+                env = dict(self.env, SHELL=executable, WINDVIM_BIN_DIR=str(bin_dir))
+                self.install('--force', env=env)
+                if shell == 'bash':
+                    cmd = [executable, '--noprofile', '--norc', '-c', '. "$HOME/.bashrc"; command -v windvim']
+                elif shell == 'zsh':
+                    cmd = [executable, '-i', '-c', 'command -v windvim']
+                else:
+                    cmd = [executable, '-c', 'command -v windvim']
+                output = subprocess.check_output(cmd, env=env, text=True)
+                self.assertEqual(output.strip(), str(bin_dir / 'windvim'))
 
 
 if __name__ == '__main__':

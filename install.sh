@@ -6,17 +6,21 @@ SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 APPNAME=windvim
 FORCE=0
 LAUNCHER=1
+SETUP_PATH=1
 NVIM_BIN="${NVIM_BIN:-nvim}"
 
 usage() {
     cat <<'HELP'
-Usage: ./install.sh [--appname NAME] [--force] [--no-launcher]
+Usage: ./install.sh [--appname NAME] [--force] [--no-launcher] [--no-path]
 
   --appname NAME   Isolated Neovim config name (default: windvim)
   --force          Back up an existing config/launcher before replacing it
   --no-launcher    Do not create ~/.local/bin/windvim
+  --no-path        Do not update shell startup files
 
-Honors XDG_CONFIG_HOME, WINDVIM_BIN_DIR and NVIM_BIN. No sudo required.
+Adds the launcher directory to PATH for Bash, Zsh or Fish on new terminals.
+Honors XDG_CONFIG_HOME, WINDVIM_BIN_DIR, NVIM_BIN, SHELL and ZDOTDIR.
+No sudo required.
 Plugins are downloaded on first launch; this script never updates plugins.
 HELP
 }
@@ -26,6 +30,7 @@ while [ "$#" -gt 0 ]; do
         --appname) [ "$#" -ge 2 ] || fail '--appname requires a name'; APPNAME="$2"; shift 2 ;;
         --force) FORCE=1; shift ;;
         --no-launcher) LAUNCHER=0; shift ;;
+        --no-path) SETUP_PATH=0; shift ;;
         -h|--help) usage; exit 0 ;;
         *) fail "Unknown option: $1" ;;
     esac
@@ -79,8 +84,71 @@ exec "\${NVIM_BIN:-nvim}" "\$@"
 LAUNCH
     chmod +x "$LAUNCHER_PATH"
 fi
+setup_path() {
+    local shell_name="${SHELL##*/}" quoted block file content login_file
+    local files=()
+    case "$shell_name" in
+        bash|zsh)
+            quoted="${BIN_DIR//\'/\'\\\'\'}"
+            quoted="'$quoted'"
+            block="$(cat <<PATH_BLOCK
+# WindVim launcher PATH
+case ":\$PATH:" in
+    *:$quoted:*) ;;
+    *) export PATH=$quoted:"\$PATH" ;;
+esac
+PATH_BLOCK
+)"
+            if [ "$shell_name" = bash ]; then
+                login_file="$HOME/.profile"
+                if [ -f "$HOME/.bash_profile" ]; then
+                    login_file="$HOME/.bash_profile"
+                elif [ -f "$HOME/.bash_login" ]; then
+                    login_file="$HOME/.bash_login"
+                fi
+                files=("$HOME/.bashrc" "$login_file")
+            else
+                files=("${ZDOTDIR:-$HOME}/.zshrc" "${ZDOTDIR:-$HOME}/.zprofile")
+            fi
+            ;;
+        fish)
+            quoted="${BIN_DIR//\\/\\\\}"
+            quoted="${quoted//\'/\\\'}"
+            block="$(cat <<PATH_BLOCK
+# WindVim launcher PATH
+if not contains -- '$quoted' \$PATH
+    set -gx PATH '$quoted' \$PATH
+end
+PATH_BLOCK
+)"
+            files=("$CONFIG_HOME/fish/conf.d/windvim-path.fish")
+            ;;
+        *)
+            printf 'Shell PATH setup skipped for %s. Add %s to PATH manually.\n' "${SHELL:-unknown shell}" "$BIN_DIR"
+            return
+            ;;
+    esac
+    for file in "${files[@]}"; do
+        content=""
+        [ ! -f "$file" ] || content="$(cat "$file")"
+        if [[ "$content" != *"$block"* ]]; then
+            mkdir -p "$(dirname "$file")"
+            if [ -e "$file" ]; then
+                cp -p -- "$file" "$file.backup.$STAMP"
+                printf 'Shell config backup: %s\n' "$file.backup.$STAMP"
+            fi
+            printf '\n%s\n' "$block" >> "$file"
+            printf 'PATH configured: %s\n' "$file"
+        fi
+    done
+    printf 'Open a new terminal, then run: windvim\n'
+    printf 'In this terminal, run directly: %s\n' "$LAUNCHER_PATH"
+}
+if [ "$LAUNCHER" -eq 1 ] && [ "$SETUP_PATH" -eq 1 ]; then
+    setup_path
+fi
 printf 'Installed WindVim: %s\n' "$DEST"
 printf 'Start: NVIM_APPNAME=%s %s\n' "$APPNAME" "$NVIM_BIN"
 if [ "$LAUNCHER" -eq 1 ]; then
-    printf 'Or run: %s (add %s to PATH)\n' "$LAUNCHER_PATH" "$BIN_DIR"
+    printf 'Launcher: %s\n' "$LAUNCHER_PATH"
 fi

@@ -53,14 +53,37 @@ See the [gallery](docs/GALLERY.en.md) for more views.
 git clone https://github.com/tingfeng347/windvim.git
 cd windvim
 ./install.sh
-LAZYVIM_LANGUAGE=en ~/.local/bin/windvim
+# Open a new terminal after installation
+LAZYVIM_LANGUAGE=en windvim
 ```
 
-The installer uses the independent `~/.config/windvim` directory and does not require sudo. On first launch, plugins are downloaded from GitHub. Add `~/.local/bin` to your PATH to run `windvim` directly; use `./install.sh` if you already have the source locally.
+The installer uses the independent `~/.config/windvim` directory without sudo and automatically adds the launcher directory to your Bash, Zsh or Fish PATH configuration. Open a new terminal and run `windvim`. On first launch, plugins are downloaded from GitHub. Use `./install.sh` if you already have the source locally.
 
 `LAZYVIM_LANGUAGE=en` selects English for that launch. To save English as your preference, run `:LazyVimLanguage en` inside WindVim; later launches can use `windvim` without the environment variable.
 
 Installation options, source archive downloads and platform dependencies are covered in the [usage guide (Chinese)](docs/USAGE.md). Copilot and AI CLIs require their own sign-in; regular editing works independently.
+
+## Launch And Use
+
+After installation, open a new terminal and run `windvim` from any directory; you do not need to return to the source checkout:
+
+```bash
+# Open the dashboard
+windvim
+
+# Start in a project, then press Space followed by e to open the file tree
+cd /path/to/your/project
+windvim
+
+# Edit a file directly
+windvim README.md
+```
+
+The installer cannot change an already open terminal's environment. Use `~/.local/bin/windvim` in that terminal, or open a new terminal and run `windvim`. Existing shell configuration files are backed up before changes, and repeated installations do not add duplicate configuration. Use `--no-path` to skip automatic PATH setup.
+
+For a `--no-launcher` installation, run `NVIM_APPNAME=windvim nvim`. If you also used `--appname my-windvim`, run `NVIM_APPNAME=my-windvim nvim`. The default `windvim` launcher selects the application name used during installation automatically. Keep the same XDG environment variables when launching a custom XDG installation, and use the launcher in your chosen directory if you set `WINDVIM_BIN_DIR`.
+
+Wait for plugin installation on the first launch. On the dashboard, press `f` to find a file, `n` to create one, or `q` to quit. While editing, press `Esc`, type `:wq` and press Enter to save and close the current window.
 
 ## Update
 
