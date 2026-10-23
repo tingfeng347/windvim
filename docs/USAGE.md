@@ -115,11 +115,16 @@ Leader 键是 **空格**。大多数行为沿用 [LazyVim 默认快捷键](https
 
 `--force` 将旧配置保存为配置目录旁的 `windvim.backup.<时间戳>.<进程号>`，旧启动器也单独备份。恢复时移走新配置，把备份目录改回原名即可；数据目录保留。
 
-卸载默认安装的配置与启动器：
+先退出 WindVim，再在项目源码目录卸载：
 
 ```bash
-rm -rf "${XDG_CONFIG_HOME:-$HOME/.config}/windvim"
-rm -f ~/.local/bin/windvim
+./uninstall.sh
+# 同时删除插件数据、缓存和状态，仍保留配置备份
+./uninstall.sh --purge
+# 卸载自定义配置名，保留启动器
+./uninstall.sh --appname my-windvim --no-launcher
 ```
 
-插件、缓存与语言状态可按需单独删除：`~/.local/share/windvim`、`~/.cache/windvim`、`~/.local/state/windvim`（若设置 XDG 变量，请使用相应路径）。旧的 `nvim` / `lazyvim` 配置和备份保留。
+默认将配置移为同目录下的 `windvim.backup.<时间戳>.<进程号>`，匹配安装器生成内容和应用名的启动器也会备份；其他启动器保留。重复运行可直接退出，无需安装 Neovim。
+
+`--purge` 删除指定应用的插件、缓存与语言状态，默认路径是 `~/.local/share/windvim`、`~/.cache/windvim`、`~/.local/state/windvim`。脚本支持 `XDG_CONFIG_HOME`、`XDG_DATA_HOME`、`XDG_CACHE_HOME`、`XDG_STATE_HOME` 和 `WINDVIM_BIN_DIR`；配置备份和其他应用保留。通过符号链接共享的数据只移除链接，不删除链接指向的目录。

@@ -73,6 +73,18 @@ git pull --ff-only
 
 The previous configuration is backed up before replacement. Manage plugins inside the editor with `:Lazy`.
 
+## Uninstall
+
+Close WindVim, then run from the source checkout:
+
+```bash
+./uninstall.sh
+# Also remove plugin data, cache and state
+./uninstall.sh --purge
+```
+
+The script moves the configuration and matching launcher to timestamped backups. Plugin data, cache and state are kept unless `--purge` is specified; configuration backups remain. Use `--appname NAME` for a custom installation, or `--no-launcher` to keep the launcher. XDG paths and `WINDVIM_BIN_DIR` are supported.
+
 ## Keymaps
 
 The leader key is Space. Other controls follow the [LazyVim default keymaps](https://www.lazyvim.org/keymaps).

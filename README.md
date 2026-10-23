@@ -73,6 +73,18 @@ git pull --ff-only
 
 更新前会备份旧配置；插件可在编辑器中通过 `:Lazy` 管理。
 
+## 卸载
+
+先退出 WindVim，在项目源码目录执行：
+
+```bash
+./uninstall.sh
+# 同时清理插件数据、缓存和状态
+./uninstall.sh --purge
+```
+
+默认将配置和匹配的启动器移为带时间戳的备份，保留插件数据、缓存和状态；`--purge` 清理这些数据，配置备份仍保留。自定义安装名使用 `--appname NAME`；`--no-launcher` 保留启动器。脚本支持 XDG 路径和 `WINDVIM_BIN_DIR`，仅处理指定应用，详见[使用说明](docs/USAGE.md#更新定制与卸载)。
+
 ## 快捷键
 
 Leader 键是空格，其余操作沿用 [LazyVim 默认快捷键](https://www.lazyvim.org/keymaps)。
