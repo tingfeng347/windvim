@@ -83,9 +83,9 @@ The installer cannot change an already open terminal's environment. Use `~/.loca
 
 For a `--no-launcher` installation, use the installer's `Start:` command, which includes the selected Neovim path and application name. The default `windvim` launcher selects the application name and downloaded Neovim automatically. Keep the same XDG environment variables when launching a custom XDG installation, and use the launcher in your chosen directory if you set `WINDVIM_BIN_DIR`. Keep `NVIM_BIN` set when launching if you chose a custom executable.
 
-Wait for plugin installation on the first launch. On the dashboard, press `f` to find a file, `n` to create one, or `q` to quit. While editing, press `Esc`, type `:wq` and press Enter to save and close the current window.
+The first launch immediately shows WindVim’s colorful animated Chinese homepage while plugins download and build in a background process. Progress and the current task stay visible; the full editor loads in the same window when installation completes. On the dashboard, press `f` to find a file, `n` to create one, or `q` to quit. While editing, press `Esc`, type `:wq` and press Enter to save and close the current window.
 
-The initial plugin manager download displays a waiting message and times out after 120 seconds; restart to retry after a network failure. For a blank startup screen, see [startup troubleshooting and logs (Chinese)](docs/USAGE.md#首次启动停在空白界面).
+Installation runs up to three automatic attempts. If it still fails, the homepage remains available: press `l` for logs, `r` to retry in place, or `q` to quit. The plugin-manager download has a 120-second timeout. See [startup troubleshooting](docs/USAGE.md#首次启动停在空白界面).
 
 ## Update
 

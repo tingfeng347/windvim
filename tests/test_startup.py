@@ -70,7 +70,7 @@ printf '%s\n' 'return { setup = function() end }' > "$target/lua/lazy/init.lua"
             self.assertTrue((self.base / 'clone-started').exists(), 'bootstrap never reached Git')
             # Newer TUIs may position individual cells with escape sequences.
             text = re.sub(rb'\x1b\[[0-?]*[ -/]*[@-~]', b'', output)
-            self.assertIn(b'WindVim: first launch', text,
+            self.assertIn('正在准备 WindVim'.encode(), text,
                           'First download left a blank terminal without any startup progress')
         finally:
             os.killpg(child.pid, signal.SIGTERM)

@@ -30,7 +30,7 @@ local function material(band, shade)
 end
 local points = { { -1, -0.62 }, { -0.5, 0.62 }, { 0, -0.12 }, { 0.5, 0.62 }, { 1, -0.62 } }
 
-local function highlights()
+function M.highlights()
   for band = 1, COLOR_BANDS do
     for shade = 1, #shades do
       vim.api.nvim_set_hl(0, "WindVimLogo" .. band .. "_" .. shade, { fg = material(band, shade) })
@@ -225,9 +225,9 @@ function M.setup()
     timer:close()
   end
   timer = assert(vim.uv.new_timer())
-  highlights()
+  M.highlights()
   local group = vim.api.nvim_create_augroup("windvim_logo", { clear = true })
-  vim.api.nvim_create_autocmd("ColorScheme", { group = group, callback = highlights })
+  vim.api.nvim_create_autocmd("ColorScheme", { group = group, callback = M.highlights })
   vim.api.nvim_create_autocmd("User", { group = group, pattern = "SnacksDashboardUpdatePost", callback = refresh })
   vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "WinClosed", "TabEnter", "ModeChanged", "VimResized" }, {
     group = group,

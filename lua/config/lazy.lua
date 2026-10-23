@@ -24,14 +24,16 @@ require("lazy").setup({
     -- version = "*", -- try installing the latest stable version for plugins that support semver
   },
   install = { colorscheme = { "catppuccin", "tokyonight", "habamax" } },
+  headless = { colors = false }, -- keep background installer logs readable
   ui = {
     border = "rounded",
     backdrop = false,
   },
   checker = {
-    enabled = true, -- check for plugin updates periodically
+    enabled = not vim.g.windvim_install_worker, -- no update checks during initial installation
     notify = false, -- notify on update
   }, -- automatically check for plugin updates
+  change_detection = { enabled = not vim.g.windvim_install_worker },
   performance = {
     rtp = {
       -- disable some rtp plugins
