@@ -353,6 +353,9 @@ local function make_transparent()
   for _, group in ipairs(selection_groups) do
     vim.api.nvim_set_hl(0, group, { bg = "#45475B", blend = 45 })
   end
+  -- The preview floats over the editor, so its active line needs an opaque
+  -- surface; otherwise the editor text underneath bleeds through the row.
+  vim.api.nvim_set_hl(0, "SnacksPickerPreviewCursorLine", { bg = "#45475B", blend = 0 })
   -- Snacks Explorer renders its file rows through this group.
   vim.api.nvim_set_hl(0, "SnacksPickerListCursorLine", { bg = "#45475B", blend = 45 })
   for _, group in ipairs(picker_accent_groups) do
