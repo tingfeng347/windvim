@@ -4,7 +4,7 @@ local function startup()
   local stats = require("lazy.stats").stats()
   local ms = math.floor(stats.startuptime * 100 + 0.5) / 100
   return {
-    padding = { 0, 1 },
+    padding = { 0, 2 },
     align = "center",
     text = {
       { "⚡ WindVim 已加载 ", hl = "footer" },
@@ -98,13 +98,13 @@ return {
           return
         end
         dash_wins[self.win] = true
-        self.opts.width = math.max(8, math.min(48, vim.o.columns - 2))
+        self.opts.width = math.max(8, math.min(46, vim.o.columns - 2))
         return orig_update(self)
       end
     end,
     opts = {
       dashboard = {
-        width = 48,
+        width = 46,
         -- Keep a single centered column like nvim's alpha dashboard. Snacks
         -- normally splits the keys into extra panes on wide windows, which
         -- shoves the logo into the left pane (looking like a left shift).
@@ -116,10 +116,10 @@ return {
           -- Custom header section so the logo sits tight against the menu
           -- (the stock header section adds two blank rows of its own).
           logo.section,
-          -- Add one line above and below the menu. Since the dashboard is
-          -- vertically centred, this also lifts the header by one line
-          -- without making the individual shortcut rows overly sparse.
-          { section = "keys", gap = 0, padding = { 1, 1 } },
+          -- Keep a little extra space above and below the menu. Since the
+          -- dashboard is vertically centred, the logo and footer spread
+          -- gently toward the top and bottom without loosening each row.
+          { section = "keys", gap = 0, padding = { 2, 2 } },
           startup,
         },
         preset = {
