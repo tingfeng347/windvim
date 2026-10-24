@@ -91,15 +91,57 @@ return {
 
       -- Adaptive width: shrink the dashboard content so it fits narrow
       -- windows without clipping. Every render recomputes the width from the
-      -- current editor width.
+      -- current dashboard window width.
       local orig_update = D.update
+      local function reset_dashboard_view(self)
+        if not dashboard_active(self) then
+          return
+        end
+        vim.api.nvim_win_call(self.win, function()
+          local view = vim.fn.winsaveview()
+          if view.topline ~= 1 or view.leftcol ~= 0 then
+            view.topline = 1
+            view.leftcol = 0
+            vim.fn.winrestview(view)
+          end
+        end)
+      end
+
+      local function install_dashboard_view_guard(self)
+        if vim.b[self.buf].windvim_dashboard_view_guard then
+          return
+        end
+        vim.b[self.buf].windvim_dashboard_view_guard = true
+        local group = vim.api.nvim_create_augroup("windvim_dashboard_view", { clear = true })
+        vim.api.nvim_create_autocmd({ "CursorMoved", "WinScrolled" }, {
+          group = group,
+          buffer = self.buf,
+          callback = function()
+            reset_dashboard_view(self)
+          end,
+        })
+        -- Mouse wheels otherwise scroll the padded dashboard buffer and make
+        -- the centered layout appear to drift inside the window.
+        for _, lhs in ipairs({
+          "<ScrollWheelUp>",
+          "<ScrollWheelDown>",
+          "<ScrollWheelLeft>",
+          "<ScrollWheelRight>",
+        }) do
+          vim.keymap.set("n", lhs, "<Nop>", { buffer = self.buf, silent = true })
+        end
+      end
+
       function D.update(self)
         if not dashboard_active(self) then
           return
         end
         dash_wins[self.win] = true
-        self.opts.width = math.max(8, math.min(46, vim.o.columns - 2))
-        return orig_update(self)
+        self.opts.width = math.max(8, math.min(46, vim.api.nvim_win_get_width(self.win) - 2))
+        install_dashboard_view_guard(self)
+        local result = orig_update(self)
+        reset_dashboard_view(self)
+        return result
       end
     end,
     opts = {
