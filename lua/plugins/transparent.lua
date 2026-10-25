@@ -150,25 +150,21 @@ local float_border_groups = {
   "SnacksLazyGitBorder",
 }
 
--- Exception to the transparent floats above: the completion popup is the one
--- surface that must stay readable. blink.cmp links BlinkCmpMenu to Pmenu (and
--- BlinkCmpDoc to NormalFloat), both of which are cleared to `bg=NONE` here, so
--- the wallpaper bleeds through the candidate list. Give the menu, its border
--- and the documentation window an opaque Catppuccin Mocha surface instead.
--- The foregrounds are repeated because defining any attribute on a group
--- replaces its link (Pmenu/NormalFloat are still left transparent below, so
--- the native right-click menu is unaffected).
+-- Keep completion text readable without painting a solid rectangle over the
+-- terminal background. The foregrounds are repeated because defining any
+-- attribute on a group replaces its link (Pmenu/NormalFloat remain transparent
+-- below, so the native right-click menu is unaffected).
 local completion_popup_highlights = {
   BlinkCmpMenu = { fg = "#9399B3", bg = "NONE" },
   BlinkCmpMenuBorder = { fg = "#B8BDC7", bg = "NONE" },
   BlinkCmpMenuSelection = { bg = "#45475B", bold = true },
   BlinkCmpScrollBarGutter = { bg = "NONE" },
   BlinkCmpScrollBarThumb = { bg = "#585B70" },
-  BlinkCmpDoc = { fg = "#CDD6F4", bg = "#1E1E2E" },
-  BlinkCmpDocBorder = { fg = "#B8BDC7", bg = "#1E1E2E" },
-  BlinkCmpDocSeparator = { fg = "#585B70", bg = "#1E1E2E" },
-  BlinkCmpSignatureHelp = { fg = "#CDD6F4", bg = "#1E1E2E" },
-  BlinkCmpSignatureHelpBorder = { fg = "#B8BDC7", bg = "#1E1E2E" },
+  BlinkCmpDoc = { fg = "#CDD6F4", bg = "NONE" },
+  BlinkCmpDocBorder = { fg = "#B8BDC7", bg = "NONE" },
+  BlinkCmpDocSeparator = { fg = "#585B70", bg = "NONE" },
+  BlinkCmpSignatureHelp = { fg = "#CDD6F4", bg = "NONE" },
+  BlinkCmpSignatureHelpBorder = { fg = "#B8BDC7", bg = "NONE" },
   NoicePopupmenu = { fg = "#9399B3", bg = "NONE" },
   NoiceCmdlinePopup = { fg = "#CDD6F4", bg = "NONE" },
 }
@@ -349,9 +345,8 @@ local function make_transparent()
   vim.api.nvim_set_hl(0, "PmenuMatchSel", { bold = true, bg = "NONE" })
   vim.api.nvim_set_hl(0, "PmenuSbar", { bg = "NONE" })
   vim.api.nvim_set_hl(0, "PmenuThumb", { bg = "NONE" })
-  -- Keep the completion popup itself opaque (see the table above). This runs
-  -- after the colorscheme has linked BlinkCmpMenu back to the transparent
-  -- Pmenu, and is reapplied by every hook below.
+  -- Reapply completion highlights after the colorscheme links BlinkCmp groups
+  -- back to the native popup groups.
   set_completion_popup_highlights()
   for _, group in ipairs(selection_groups) do
     vim.api.nvim_set_hl(0, group, { bg = "#45475B", blend = 45 })
@@ -443,10 +438,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
--- blink.cmp creates its menu window on demand and catppuccin re-links
--- BlinkCmpMenu to the transparent Pmenu whenever the colorscheme is reloaded.
--- Reapply the opaque completion surfaces each time the menu opens so they
--- cannot silently become transparent again.
+-- blink.cmp creates its menu window on demand and catppuccin re-links its
+-- groups to the native popup groups whenever the colorscheme is reloaded.
+-- Reapply the transparent completion surfaces each time the menu opens.
 vim.api.nvim_create_autocmd("User", {
   group = transparent_group,
   pattern = "BlinkCmpMenuOpen",
