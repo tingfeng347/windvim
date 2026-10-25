@@ -4,7 +4,7 @@ local function startup()
   local stats = require("lazy.stats").stats()
   local ms = math.floor(stats.startuptime * 100 + 0.5) / 100
   return {
-    padding = { 0, 2 },
+    padding = { 0, 1 },
     align = "center",
     text = {
       { "⚡ WindVim 已加载 ", hl = "footer" },
@@ -161,8 +161,11 @@ return {
           -- Keep a little extra space above and below the menu. Since the
           -- dashboard is vertically centred, the logo and footer spread
           -- gently toward the top and bottom without loosening each row.
-          { section = "keys", gap = 0, padding = { 2, 2 } },
+          { section = "keys", gap = 0, padding = { 1, 2 } },
           startup,
+          -- Keep the centered block a touch higher while leaving a little
+          -- room below the startup line.
+          { padding = { 4, 0 } },
         },
         preset = {
           header = "W I N D V I M",
