@@ -3,8 +3,10 @@
 local transparent_groups = {
   "Normal",
   "NormalNC",
+  "NormalSB",
   "CursorLine",
   "SignColumn",
+  "SignColumnSB",
   "EndOfBuffer",
   "MsgArea",
   "Folded",
@@ -36,6 +38,8 @@ local transparent_groups = {
   -- which-key maps its popup's Normal group to WhichKeyNormal.
   "WhichKeyNormal",
   "WhichKeyFloat",
+  "TroubleNormal",
+  "TroubleNormalNC",
   "MasonNormal",
   "LazyNormal",
   "NoicePopup",
