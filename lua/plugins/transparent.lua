@@ -159,16 +159,18 @@ local float_border_groups = {
 -- replaces its link (Pmenu/NormalFloat are still left transparent below, so
 -- the native right-click menu is unaffected).
 local completion_popup_highlights = {
-  BlinkCmpMenu = { fg = "#9399B3", bg = "#1E1E2E" },
-  BlinkCmpMenuBorder = { fg = "#B8BDC7", bg = "#1E1E2E" },
+  BlinkCmpMenu = { fg = "#9399B3", bg = "NONE" },
+  BlinkCmpMenuBorder = { fg = "#B8BDC7", bg = "NONE" },
   BlinkCmpMenuSelection = { bg = "#45475B", bold = true },
-  BlinkCmpScrollBarGutter = { bg = "#1E1E2E" },
+  BlinkCmpScrollBarGutter = { bg = "NONE" },
   BlinkCmpScrollBarThumb = { bg = "#585B70" },
   BlinkCmpDoc = { fg = "#CDD6F4", bg = "#1E1E2E" },
   BlinkCmpDocBorder = { fg = "#B8BDC7", bg = "#1E1E2E" },
   BlinkCmpDocSeparator = { fg = "#585B70", bg = "#1E1E2E" },
   BlinkCmpSignatureHelp = { fg = "#CDD6F4", bg = "#1E1E2E" },
   BlinkCmpSignatureHelpBorder = { fg = "#B8BDC7", bg = "#1E1E2E" },
+  NoicePopupmenu = { fg = "#9399B3", bg = "NONE" },
+  NoiceCmdlinePopup = { fg = "#CDD6F4", bg = "NONE" },
 }
 
 local function set_completion_popup_highlights()
@@ -225,6 +227,7 @@ local function set_flash_label_highlight()
 end
 
 local dim_statusline_foregrounds = {
+  [tonumber("181825", 16)] = true, -- Catppuccin crust used by lualine mode
   [tonumber("181826", 16)] = true, -- Catppuccin mantle
   [tonumber("1E1E2F", 16)] = true, -- terminal dark text
   [tonumber("313245", 16)] = true, -- Lualine transition surface
@@ -237,7 +240,7 @@ local function clear_statusline_group(group)
   -- become unreadable once their dark background is removed.
   vim.cmd("highlight " .. group .. " guibg=NONE ctermbg=NONE")
   if highlight.fg and dim_statusline_foregrounds[highlight.fg] then
-    vim.cmd("highlight " .. group .. " guifg=#BAC2DE")
+    vim.cmd("highlight " .. group .. " guifg=#BAC2DE ctermfg=153")
   end
 end
 
@@ -455,7 +458,17 @@ vim.api.nvim_create_autocmd("User", {
 vim.api.nvim_create_autocmd("ModeChanged", {
   group = transparent_group,
   callback = function()
-    vim.schedule(clear_lualine_backgrounds)
+    vim.defer_fn(clear_lualine_backgrounds, 100)
+  end,
+})
+
+-- Lualine creates section-transition groups lazily when a real buffer first
+-- renders its statusline. Clear those groups after the render so powerline
+-- arrows keep their shape without retaining a rectangular background.
+vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "VimResized" }, {
+  group = transparent_group,
+  callback = function()
+    vim.defer_fn(clear_lualine_backgrounds, 100)
   end,
 })
 
