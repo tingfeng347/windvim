@@ -387,6 +387,13 @@ local function make_transparent()
     vim.api.nvim_set_hl(0, group, { fg = "#7F96BD", bg = "NONE" })
   end
   set_flash_label_highlight()
+  -- Neovim displays the terminal window indicator ("TERMINAL") with
+  -- ModeMsg. Its colorscheme default is too dim when tmux exposes only the
+  -- 256-color capability. Pin a readable foreground inside tmux while
+  -- keeping the transparent background and the normal terminal untouched.
+  if vim.env.TMUX and vim.env.TMUX ~= "" then
+    vim.api.nvim_set_hl(0, "ModeMsg", { fg = "#BAC2DE", bg = "NONE", ctermfg = 153, ctermbg = "NONE" })
+  end
   clear_lualine_backgrounds()
   -- Match nvim's visual-selection treatment: muted slate rather than the
   -- colorscheme's brighter blue, with the selected text kept bold.
