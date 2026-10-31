@@ -119,6 +119,8 @@ The leader key is Space. Other controls follow the [LazyVim default keymaps](htt
 | Switch Chinese / English | `<Space>uH` |
 | Find files / search text | `<Space>ff` / `<Space>sg` |
 | File explorer | `<Space>e` |
+| Toggle bottom terminal (project root) | `<Space>tt` |
+| Toggle bottom terminal (current working directory) | `<Space>tT` |
 | Centered floating terminal | `<Space>tp` |
 | Toggle / select AI CLI | `<Space>aa` / `<Space>as` |
 

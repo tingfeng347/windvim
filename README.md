@@ -119,6 +119,8 @@ Leader 键是空格，其余操作沿用 [LazyVim 默认快捷键](https://www.l
 | 切换中文 / English | `<Space>uH` |
 | 查找文件 / 搜索文本 | `<Space>ff` / `<Space>sg` |
 | 文件浏览器 | `<Space>e` |
+| 切换底部终端（项目根目录） | `<Space>tt` |
+| 切换底部终端（当前工作目录） | `<Space>tT` |
 | 居中浮动终端 | `<Space>tp` |
 | 切换 / 选择 AI CLI | `<Space>aa` / `<Space>as` |
 

@@ -3,8 +3,8 @@
 -- snacks picks the terminal window from whether a command was given
 -- (snacks/terminal.lua):
 --     position = cmd and "float" or "bottom"
--- so LazyVim's <C-/> / <leader>ft / <leader>fT (no command) always open a
--- bottom split. The panel below passes an explicit `win`, which is resolved
+-- so <C-/> / <leader>tt / <leader>tT (no command) open a bottom split
+-- (see config/keymaps.lua). The panel below passes an explicit `win`, resolved
 -- last and therefore wins. snacks keys terminals by (cmd, cwd, env, count), so
 -- `count` is used to keep this float separate from the bottom terminal.
 --

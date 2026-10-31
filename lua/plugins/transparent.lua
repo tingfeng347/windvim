@@ -156,8 +156,8 @@ local float_border_groups = {
 
 -- Keep completion text readable without painting a solid rectangle over the
 -- terminal background. The foregrounds are repeated because defining any
--- attribute on a group replaces its link (Pmenu/NormalFloat remain transparent
--- below, so the native right-click menu is unaffected).
+-- attribute on a group replaces its link. These surfaces stay independent of
+-- the opaque native right-click menu configured below.
 local completion_popup_highlights = {
   BlinkCmpMenu = { fg = "#9399B3", bg = "NONE" },
   BlinkCmpMenuBorder = { fg = "#B8BDC7", bg = "NONE" },
@@ -335,20 +335,21 @@ local function make_transparent()
   for _, group in ipairs(float_border_groups) do
     vim.api.nvim_set_hl(0, group, { fg = "#B8BDC7", bg = "NONE", blend = 35 })
   end
-  -- Native popup menus are also used for the right-click PopUp menu. Match
-  -- the separate nvim config: all non-selected menu cells are genuinely
-  -- transparent, including the border and extra-text groups. Leaving either
-  -- group with a background causes isolated dark blocks over the wallpaper.
-  vim.api.nvim_set_hl(0, "Pmenu", { fg = "#9399B3", bg = "NONE" })
+  -- The native right-click PopUp menu overlays editor text. Unlike floating
+  -- windows, pumblend also blends the underlying glyphs into the menu, so a
+  -- solid background alone cannot prevent overlapping text.
+  vim.o.pumblend = 0
+  vim.api.nvim_set_hl(0, "Pmenu", { fg = "#CDD6F4", bg = "#1E1E2F", blend = 0 })
+  vim.api.nvim_set_hl(0, "PmenuBorder", { fg = "#B8BDC7", bg = "#1E1E2F", blend = 0 })
   vim.api.nvim_set_hl(0, "PmenuSel", { fg = "#1E1E2F", bg = "#A6E3A2", bold = true })
-  vim.api.nvim_set_hl(0, "PmenuKind", { fg = "#9399B3", bg = "NONE" })
+  vim.api.nvim_set_hl(0, "PmenuKind", { fg = "#CDD6F4", bg = "#1E1E2F" })
   vim.api.nvim_set_hl(0, "PmenuKindSel", { fg = "#1E1E2F", bg = "#A6E3A2", bold = true })
-  vim.api.nvim_set_hl(0, "PmenuExtra", { fg = "#6C7087", bg = "NONE" })
-  vim.api.nvim_set_hl(0, "PmenuExtraSel", { fg = "#6C7087", bg = "NONE" })
-  vim.api.nvim_set_hl(0, "PmenuMatch", { bold = true, bg = "NONE" })
-  vim.api.nvim_set_hl(0, "PmenuMatchSel", { bold = true, bg = "NONE" })
-  vim.api.nvim_set_hl(0, "PmenuSbar", { bg = "NONE" })
-  vim.api.nvim_set_hl(0, "PmenuThumb", { bg = "NONE" })
+  vim.api.nvim_set_hl(0, "PmenuExtra", { fg = "#9399B3", bg = "#1E1E2F" })
+  vim.api.nvim_set_hl(0, "PmenuExtraSel", { fg = "#1E1E2F", bg = "#A6E3A2" })
+  vim.api.nvim_set_hl(0, "PmenuMatch", { bold = true, bg = "#1E1E2F" })
+  vim.api.nvim_set_hl(0, "PmenuMatchSel", { bold = true, bg = "#A6E3A2" })
+  vim.api.nvim_set_hl(0, "PmenuSbar", { bg = "#313244" })
+  vim.api.nvim_set_hl(0, "PmenuThumb", { bg = "#585B70" })
   -- Reapply completion highlights after the colorscheme links BlinkCmp groups
   -- back to the native popup groups.
   set_completion_popup_highlights()

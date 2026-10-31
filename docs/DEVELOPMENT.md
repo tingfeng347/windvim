@@ -26,6 +26,8 @@ uv run --with pynvim --with pillow python scripts/screenshots.py --ai
 
 `tests/test_startup.py` 使用真实 Neovim 和隔离的 XDG 目录，通过伪终端模拟首次下载卡住、超时、中断和重试，确认等待期间能看到文字。Git 使用本地替身，不会下载真实插件；可设置 `NVIM_BIN` 指定需要验证的 Neovim 版本。
 
+`tests/test_popup.py` 验证原生右键菜单的不透明背景与关闭混合，覆盖主题切换及窗口事件，并确认编辑区和 Blink 补全继续透明；使用真实 Neovim，不访问网络。
+
 `tests/test_first_run.py` 用真实 Neovim、真实 lazy.nvim 和本地 Git 仓库验证中文首页的多帧动效与静态模式、延迟发现的插件、构建失败后自动补跑、同进程加载、文件参数保留、再次启动跳过安装，以及网络失败后在原窗口按 `r` 恢复、按 `l` 查看日志和按 `q` 停止下载。所有数据位于临时 XDG 目录，不改动本机插件缓存。
 
 `tests/test_lazy_lock.py` 使用真实 lazy.nvim 的锁文件写入和更新流程，搭配本地 Git 仓库，验证首次克隆及旧标签克隆的兼容性。默认读取已安装的 `windvim`、`lazyvim` 或 `nvim` 插件缓存，也可设置 `WINDVIM_TEST_LAZY=/path/to/lazy.nvim`；找不到源码时会跳过这两项测试。所有仓库操作和锁文件写入都在临时目录完成，不访问网络、不更新原插件缓存。

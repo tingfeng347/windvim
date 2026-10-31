@@ -1,5 +1,24 @@
 # 项目标识与 README
 
+## 2026-10-31 · 原生右键菜单文字透叠修复
+
+- 用户截图显示原生 PopUp 菜单文字与底层代码重叠；目标是右键菜单有完整不透明背景，编辑区和 Blink 补全外观保持原样。
+- 原因：透明主题覆盖将 `Pmenu` 等菜单背景清空，同时 LazyVim 默认 `pumblend=10` 会将底层字符混入菜单。
+- 实现：原生菜单及选中项、边框、辅助文字与滚动条使用实色背景，关闭 `pumblend`；沿用原有主题/窗口事件确保覆盖持续生效。
+- 验证：`python3 -m unittest discover -s tests -p test_popup.py -v` 修复前报 `Pmenu has no background`，修复后通过；覆盖主题切换、VeryLazy、WinNew 和编辑区/Blink 透明度保留。32 个 Lua / 3 个 JSON 与 diff 空白检查通过。
+- 实际附加 Neovim UI 中通过右键鼠标事件复现并截图，修复前底层字符透出，修复后整块菜单完整遮挡底层文字；前后截图位于忽略目录 `.tests/popup/`。
+- 状态：代码、回归与本机部署完成。通过 `./install.sh --force --no-deps --no-path` 同步；安装文件逐字节一致，加载安装后的文件验证 `pumblend=0` 与菜单背景 `#1E1E2F` 通过。旧配置备份为 `~/.config/windvim.backup.20261031-001506.973691`，重启 WindVim 生效。
+
+## 2026-10-30 · 终端快捷键归类
+
+- 目标：将底部终端从 `<Space>ft` / `<Space>fT` 移到 `<Space>tt` / `<Space>tT`，分别保持项目根目录、当前工作目录语义；移除旧入口。
+- `<Space>t` 菜单命名为「终端」，保留 `<Space>tp` 浮动终端与 `Ctrl+/` 行为。
+- 任务：修改映射、菜单与中英文文档；用真实 Snacks 终端检查布局、目录、切换及浮窗独立性，并检查 Lua / JSON。
+- 状态：代码完成；32 个 Lua / 3 个 JSON 与 `git diff --check` 通过。
+- 验证：隔离运行真实 Snacks，通过新映射检查底部布局、根目录参数、当前目录 shell 进程、隐藏/重开、浮窗独立性和旧入口移除；菜单配置为 `terminal`，对应已有「终端」翻译。根目录提供者使用替身，未验证完整 LazyVim UI；完整启动尝试因 Copilot 语言服务器下载超时未完成。验证脚本位于忽略目录 `.tests/terminal/verify.lua`。
+- `Ctrl+/` 的默认映射未改。
+- 用户随后授权同步本机：已运行 `./install.sh --force --no-deps --no-path` 部署至 `~/.config/windvim`，快捷键、终端、菜单与词典文件逐字节核对一致；启动器语法检查通过。原配置备份为 `~/.config/windvim.backup.20261030-235434.968054`，启动器有同时间戳备份。重启 WindVim 后加载新映射。
+
 规格：有效；实现：代码完成；验收：通过（含动态标识与 GitHub 安装说明，2026-10-22）。
 
 - 仅修改 WindVim 项目。保留本机已安装的 LazyVim / WindVim 配置与 dotfiles 模块。

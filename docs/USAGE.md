@@ -162,6 +162,8 @@ Leader 键是 **空格**。大多数行为沿用 [LazyVim 默认快捷键](https
 | `:LazyVimLanguage zh_CN` / `en` | 显式设置界面语言 |
 | `<Space>ff` / `<Space>sg` | 查找文件 / 搜索文本 |
 | `<Space>e` | 文件浏览器 |
+| `<Space>tt` | 切换底部终端（项目根目录，原 `<Space>ft`） |
+| `<Space>tT` | 切换底部终端（当前工作目录，原 `<Space>fT`） |
 | `<Space>tp` | 居中浮动终端 |
 | `<Space>aa` / `<Space>as` | 切换 / 选择 Sidekick CLI |
 | `<Space>ap` | Sidekick 提示词 |
