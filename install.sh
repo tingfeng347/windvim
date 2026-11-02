@@ -93,20 +93,22 @@ LAUNCH
     chmod +x "$LAUNCHER_PATH"
 fi
 setup_path() {
-    local shell_name="${SHELL##*/}" quoted block file content login_file
+    local shell_name="${SHELL##*/}" quoted block file content login_file i c
     local files=()
     case "$shell_name" in
         bash|zsh)
-            quoted="${BIN_DIR//\'/\'\\\'\'}"
-            quoted="'$quoted'"
-            block="$(cat <<PATH_BLOCK
-# WindVim launcher PATH
-case ":\$PATH:" in
+            # printf %q yields a literal that is safe both as a case pattern and
+            # as an export argument in bash and zsh, including paths with
+            # spaces, quotes, $, backticks and backslashes.
+            quoted="$(printf '%q' "$BIN_DIR")"
+            # Build the block as a plain quoted string: bash 3.2 (macOS) ends a
+            # $(...) command substitution at the ")" in the case pattern, which
+            # truncated the block and leaked the heredoc terminator into the file.
+            block="# WindVim launcher PATH
+case \":\$PATH:\" in
     *:$quoted:*) ;;
-    *) export PATH=$quoted:"\$PATH" ;;
-esac
-PATH_BLOCK
-)"
+    *) export PATH=$quoted:\"\$PATH\" ;;
+esac"
             if [ "$shell_name" = bash ]; then
                 login_file="$HOME/.profile"
                 if [ -f "$HOME/.bash_profile" ]; then
@@ -120,15 +122,21 @@ PATH_BLOCK
             fi
             ;;
         fish)
-            quoted="${BIN_DIR//\\/\\\\}"
-            quoted="${quoted//\'/\\\'}"
-            block="$(cat <<PATH_BLOCK
-# WindVim launcher PATH
+            # Fish single-quoted strings only escape \\ and \', so escape those
+            # explicitly instead of relying on bash ${var//pat/repl}, whose
+            # backslash handling differs on bash 3.2.
+            quoted=''
+            for (( i = 0; i < ${#BIN_DIR}; i++ )); do
+                c="${BIN_DIR:i:1}"
+                case "$c" in
+                    \\ | \') quoted="$quoted\\$c" ;;
+                    *) quoted="$quoted$c" ;;
+                esac
+            done
+            block="# WindVim launcher PATH
 if not contains -- '$quoted' \$PATH
     set -gx PATH '$quoted' \$PATH
-end
-PATH_BLOCK
-)"
+end"
             files=("$CONFIG_HOME/fish/conf.d/windvim-path.fish")
             ;;
         *)
