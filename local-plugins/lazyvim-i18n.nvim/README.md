@@ -12,6 +12,8 @@
 
 重启独立配置 `windvim` 后生效。已打开的 Lazy、which-key、Snacks 选择器和启动页在切换时刷新。
 
+Snacks 快捷键列表在中英文界面下都支持按中文或英文说明搜索，例如“查找文件”和 `Find Files`。搜索别名只添加到选择器索引，原始映射、命令和预览内容保留原样。
+
 语言保存在 `stdpath("state") .. "/lazyvim-i18n/locale"`，与其他 Neovim 配置隔离。加载顺序为 `LAZYVIM_LANGUAGE` 环境变量 > 已保存的选择 > `opts.locale`。例如：
 
 ```sh
@@ -24,7 +26,7 @@ NVIM_APPNAME=windvim LAZYVIM_LANGUAGE=en nvim
 
 | 界面 | 已适配的文字 |
 | --- | --- |
-| which-key | 分组、已收录的快捷键说明、内置移动/窗口/折叠/文本对象说明、关闭/返回/滚动底栏 |
+| which-key | 分组、已收录的快捷键说明、内置移动/窗口/折叠/文本对象及寄存器/标记固定说明、关闭/返回/滚动底栏 |
 | lazy.nvim | 顶部按钮、列表分区、数量、更新状态、帮助页 |
 | Snacks Picker / Explorer | 文件、搜索、缓冲区、LSP 调用层级、GitHub 等选择器标题；快捷键列表的说明栏；which-key 中的文件浏览器局部操作说明；结果标题和预览占位标题 |
 | Snacks Dashboard | 常用菜单项及当前 WindVim 启动统计文案；原先写死的中文也能切回英文 |
@@ -68,7 +70,8 @@ return {
 - `adapters.lua`：限定在各插件的 UI 渲染入口，切换时从原文重新渲染；中文宽度按显示单元计算，高亮仍按字节定位。
 - `hooks.lua`：仅观察列明的 Lua 模块加载并安装适配，不提前加载弹窗；卸载时恢复原方法及继承关系。
 - `init.lua`：语言选择、保存、命令、快捷键和界面刷新。
-- `tests/coverage.lua`：扫描实际映射、已启用插件配置、which-key 内置说明和选择器标题；目录后缀单独翻译不能掩盖主体漏译。
+- `tests/coverage.lua`：扫描实际映射、Lazy 已解析的按键声明、LSP 声明、which-key 内置说明和选择器标题，包含缓冲区可视/操作符模式；目录后缀单独翻译不能掩盖主体漏译。
+- `tests/regressions.lua`：复现命令列保护、中英文搜索、真实 Git 文件延迟映射、寄存器内容保护，以及声明/模式漏检；在现有 UI 测试中运行。
 
 上游缺少统一 i18n API，所以 lazy.nvim、which-key 底栏和 Snacks 使用了局部函数包装，存在上游接口变动后的维护成本。适配不修改模块源文件；新增上游文字默认显示原文。建议更新这些插件后运行下面的真实 UI 集成测试。
 

@@ -7,8 +7,8 @@ function M.get_locale()
 end
 
 -- Unknown messages stay intact. Translation is restricted to adapter UI fields.
-function M.translate(text, domain)
-  return dictionary.translate(text, M.get_locale(), domain, options and options.translations)
+function M.translate(text, domain, target_locale)
+  return dictionary.translate(text, target_locale or M.get_locale(), domain, options and options.translations)
 end
 
 local function state_path()

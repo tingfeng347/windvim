@@ -96,13 +96,38 @@ function M.setup(i18n)
         local desc = item.item.desc
         if type(desc) == "string" then
           local align = require("snacks.picker.util").align
-          for _, chunk in ipairs(ret) do
+          -- The description follows the command and precedes the optional
+          -- styled filename. Stop at that final plain-text column, even when
+          -- the command body contains exactly the same words.
+          for index = #ret, 1, -1 do
+            local chunk = ret[index]
             if not chunk[2] and chunk[1] == align(desc, 20) then
               chunk[1] = align(tr(desc, "keymaps"), 20)
+              break
             end
           end
         end
         return ret
+      end
+    end)
+  end)
+
+  hooks.watch("snacks.picker.source.vim", function(source)
+    hooks.wrap(source, "keymaps", function(original)
+      return function(...)
+        local items = original(...)
+        for _, item in ipairs(items) do
+          local desc = item.item.desc
+          if type(desc) == "string" then
+            -- Keep both languages searchable, including when the picker opens
+            -- in English. The underlying mapping and preview stay untouched.
+            local chinese = i18n.translate(desc, "keymaps", "zh_CN")
+            if chinese ~= desc then
+              item.text = item.text .. " " .. chinese
+            end
+          end
+        end
+        return items
       end
     end)
   end)

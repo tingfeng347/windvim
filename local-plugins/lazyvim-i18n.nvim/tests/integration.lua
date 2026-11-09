@@ -142,6 +142,8 @@ vim.defer_fn(function()
       assert(not search_error, search_error)
     end
 
+    dofile(vim.fn.stdpath("config") .. "/local-plugins/lazyvim-i18n.nvim/tests/regressions.lua")(i18n, snapshot)
+
     local explorer = Snacks.explorer({ cwd = vim.fn.stdpath("config") })
     vim.wait(150)
     coverage_count = dofile(vim.fn.stdpath("config") .. "/local-plugins/lazyvim-i18n.nvim/tests/coverage.lua")(i18n)
@@ -309,9 +311,16 @@ vim.defer_fn(function()
     })
     eq("自定义查找", view.replace("desc", "Find Files"))
 
-    local adapted_keymap_format = format.keymap
+    local source = require("snacks.picker.source.vim")
+    local adapted_keymap_format, adapted_keymap_source = format.keymap, source.keymaps
     i18n.teardown()
     assert(format.keymap ~= adapted_keymap_format, "keymap formatter wrapper was not removed")
+    assert(source.keymaps ~= adapted_keymap_source, "keymap source wrapper was not removed")
+    for _, entry in ipairs(source.keymaps(maps.opts)) do
+      if entry.item.desc == "Find Files (Root Dir)" then
+        assert(not entry.text:find("查找文件", 1, true), "translated search alias remains after teardown")
+      end
+    end
     assert(not chunks():find("查找文件", 1, true), "keymap description still translated after teardown")
     eq("file/find", view.replace("desc", "file/find"))
     eq(0, vim.fn.exists(":LazyVimLanguage"))

@@ -37,16 +37,24 @@ return function(i18n)
       check("keymaps", map.desc, mode .. " " .. map.lhs)
     end
   end
-  for _, name in ipairs(require("lazy.core.config").spec.modules) do
-    require("lazy.core.util").lsmod(name, function(_, path)
-      for _, line in ipairs(vim.fn.readfile(path)) do
-        -- Extra-module metadata is not a mapping description.
-        if not line:match("^  desc%s*=") then
-          local label = line:match('desc%s*=%s*"([^"]+)"')
-          check("keymaps", label, name)
+  -- Lazy resolves quoted strings, helper results and function-valued keys.
+  -- Inspect that data instead of trying to parse Lua with a text regexp.
+  local plugins = require("lazy.core.config").plugins
+  local plugin_values = require("lazy.core.plugin").values
+  for name, plugin in pairs(plugins) do
+    for _, map in ipairs(plugin_values(plugin, "keys", true)) do
+      check("keymaps", type(map) == "table" and map.desc or nil, name)
+    end
+  end
+  local lsp = plugins["nvim-lspconfig"]
+  if lsp then
+    for name, server in pairs(plugin_values(lsp, "opts", false).servers or {}) do
+      if type(server) == "table" then
+        for _, map in ipairs(server.keys or {}) do
+          check("keymaps", map.desc, "LSP " .. name)
         end
       end
-    end)
+    end
   end
   -- which-key consumes/mutates its preset tables on setup. Read a fresh copy.
   local presets = assert(loadfile(vim.loader.find("which-key.plugins.presets")[1].modpath))()
@@ -57,11 +65,43 @@ return function(i18n)
       end
     end
   end
+  -- Expand fixed register/mark labels using deterministic data. Dynamic
+  -- values are supplied as input, never treated as translation candidates.
+  local getreg, getmarks = vim.fn.getreg, vim.fn.getmarklist
+  local clipboard_provider = vim.g.loaded_clipboard_provider
+  local ok, err = xpcall(function()
+    vim.fn.getreg = function()
+      return "i18n coverage content"
+    end
+    vim.g.loaded_clipboard_provider = 2
+    vim.fn.getmarklist = function(buf)
+      if not buf then
+        return {}
+      end
+      local marks = {}
+      for _, key in ipairs({ "^", ".", '"', "0", "'", "`", "[", "]", "<", ">" }) do
+        marks[#marks + 1] = { mark = "'" .. key, pos = { buf, 1, 1, 0 } }
+      end
+      return marks
+    end
+    for _, name in ipairs({ "registers", "marks" }) do
+      local plugin = require("which-key.plugins." .. name)
+      for _, map in ipairs(plugin.mappings) do
+        check("keymaps", map.desc, "which-key " .. name)
+      end
+      for _, item in ipairs(plugin.expand()) do
+        check("keymaps", item.desc, "which-key " .. name)
+      end
+    end
+  end, debug.traceback)
+  vim.fn.getreg, vim.fn.getmarklist = getreg, getmarks
+  vim.g.loaded_clipboard_provider = clipboard_provider
+  assert(ok, err)
   for source, opts in pairs(require("snacks.picker.config.sources")) do
     check("picker", opts.title or require("snacks.picker.util").title(source), "picker " .. source)
   end
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    for _, mode in ipairs({ "n", "i" }) do
+    for _, mode in ipairs({ "n", "x", "o", "i", "t" }) do
       for _, map in ipairs(vim.api.nvim_buf_get_keymap(buf, mode)) do
         check("keymaps", map.desc, "buffer " .. buf .. " " .. map.lhs)
       end
