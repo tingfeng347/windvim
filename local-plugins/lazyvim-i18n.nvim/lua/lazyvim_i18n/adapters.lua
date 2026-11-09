@@ -87,6 +87,26 @@ function M.setup(i18n)
     end)
   end)
 
+  hooks.watch("snacks.picker.format", function(format)
+    hooks.wrap(format, "keymap", function(original)
+      return function(item, picker)
+        -- Keep original descriptions for icon matching, commands and previews.
+        -- Only replace the formatted description column returned by Snacks.
+        local ret = original(item, picker)
+        local desc = item.item.desc
+        if type(desc) == "string" then
+          local align = require("snacks.picker.util").align
+          for _, chunk in ipairs(ret) do
+            if not chunk[2] and chunk[1] == align(desc, 20) then
+              chunk[1] = align(tr(desc, "keymaps"), 20)
+            end
+          end
+        end
+        return ret
+      end
+    end)
+  end)
+
   hooks.watch("snacks.dashboard", function(dashboard)
     hooks.wrap(dashboard.Dashboard, "format", function(original)
       return function(self, item)

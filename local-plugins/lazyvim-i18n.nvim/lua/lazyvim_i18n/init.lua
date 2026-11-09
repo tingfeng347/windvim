@@ -28,6 +28,9 @@ function M.refresh()
   if picker then
     for _, active in ipairs(picker.get()) do
       active:update_titles()
+      if active.opts.source == "keymaps" then
+        active.list:update({ force = true })
+      end
     end
   end
   local dashboard = package.loaded["snacks.dashboard"]

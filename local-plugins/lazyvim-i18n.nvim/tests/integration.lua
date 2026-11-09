@@ -1,5 +1,6 @@
 -- Run via tests/run.py, which attaches a real Neovim UI.
 vim.defer_fn(function()
+  local coverage_count
   local ok, err = xpcall(function()
     local i18n = require("lazyvim_i18n")
     assert(
@@ -92,6 +93,11 @@ vim.defer_fn(function()
     local view = require("which-key.view")
     eq("缓冲区", view.replace("desc", "buffer"))
     eq("查找文件（项目根目录）", view.replace("desc", "Find Files (Root Dir)"))
+    eq(
+      "搜索选中文本或光标下单词（项目根目录）",
+      view.replace("desc", "Visual selection or word (Root Dir)")
+    )
+    eq("搜索选中文本或光标下单词（当前目录）", view.replace("desc", "Visual selection or word (cwd)"))
     -- Real which-key state, layout, footer and highlights.
     local wk_error
     vim.defer_fn(function()
@@ -115,6 +121,37 @@ vim.defer_fn(function()
     end, 100)
     require("which-key").show({ keys = "<leader>", mode = "n" })
     assert(not wk_error, wk_error)
+
+    -- Reproduce the screenshot's search submenu in normal and visual modes.
+    for _, mode in ipairs({ "n", "x" }) do
+      local search_error
+      vim.defer_fn(function()
+        local success, failure = xpcall(function()
+          local text = buffer(view.view.buf)
+          contains(text, "搜索选中文本或光标下单词（项目根目录）")
+          contains(text, "搜索选中文本或光标下单词（当前目录）")
+          snapshot("which-key-search-" .. mode .. "-zh")
+          i18n.set_locale("en")
+          contains(buffer(view.view.buf), "Visual selection or word")
+          i18n.set_locale("zh_CN")
+        end, debug.traceback)
+        search_error = not success and failure or nil
+        vim.api.nvim_input("<Esc>")
+      end, 100)
+      require("which-key").show({ keys = "<leader>s", mode = mode })
+      assert(not search_error, search_error)
+    end
+
+    local explorer = Snacks.explorer({ cwd = vim.fn.stdpath("config") })
+    vim.wait(150)
+    coverage_count = dofile(vim.fn.stdpath("config") .. "/local-plugins/lazyvim-i18n.nvim/tests/coverage.lua")(i18n)
+    local add = vim.fn.maparg("a", "n", false, true)
+    eq("explorer_add", add.desc)
+    eq("新建文件或目录", view.replace("desc", add.desc))
+    i18n.set_locale("en")
+    eq("explorer_add", view.replace("desc", add.desc))
+    i18n.set_locale("zh_CN")
+    explorer:close()
 
     local picker = Snacks.picker.files({ cwd = vim.fn.stdpath("config"), layout = "telescope" })
     vim.wait(200)
@@ -145,6 +182,36 @@ vim.defer_fn(function()
       util.tpl("{preview}", { title = "Files", source = "Files", preview = "/tmp/Preview.md", live = "" })
     )
     eq("Update = Help", util.tpl("{code}", { code = "Update = Help" }))
+
+    -- The keymap picker's description column is translated, while its actual
+    -- mappings, RHS, icon matching and source previews keep their originals.
+    local maps = Snacks.picker.keymaps({ pattern = "Visual selection or word", layout = "telescope" })
+    vim.wait(200)
+    contains(buffer(maps.list.win.buf), "搜索选中文本或光标下单词")
+    snapshot("keymaps-zh")
+    local mapping = vim.fn.maparg("<leader>sw", "n", false, true)
+    eq("Visual selection or word (Root Dir)", mapping.desc)
+    local format = require("snacks.picker.format")
+    local item = { item = { lhs = "<F12>", mode = "n", rhs = "Find Files", desc = "Find Files" } }
+    local function chunks()
+      local ret = {}
+      for _, chunk in ipairs(format.keymap(item, maps)) do
+        ret[#ret + 1] = chunk[1]
+      end
+      return table.concat(ret)
+    end
+    contains(chunks(), "Find Files") -- untranslated RHS, even when it resembles UI text
+    contains(chunks(), "查找文件")
+    eq("Find Files", item.item.rhs)
+    eq("Find Files", item.item.desc)
+    item.item.desc = "+ai"
+    contains(chunks(), "+AI 助手")
+    item.item.desc = "Find Files"
+    i18n.set_locale("en")
+    contains(buffer(maps.list.win.buf), "Visual selection or word")
+    i18n.set_locale("zh_CN")
+    contains(buffer(maps.list.win.buf), "搜索选中文本或光标下单词")
+    maps:close()
 
     local dashboard = require("snacks.dashboard")
     Snacks.dashboard.open()
@@ -242,7 +309,10 @@ vim.defer_fn(function()
     })
     eq("自定义查找", view.replace("desc", "Find Files"))
 
+    local adapted_keymap_format = format.keymap
     i18n.teardown()
+    assert(format.keymap ~= adapted_keymap_format, "keymap formatter wrapper was not removed")
+    assert(not chunks():find("查找文件", 1, true), "keymap description still translated after teardown")
     eq("file/find", view.replace("desc", "file/find"))
     eq(0, vim.fn.exists(":LazyVimLanguage"))
     -- setup/teardown must restore inherited methods without leaving shadows.
@@ -257,7 +327,10 @@ vim.defer_fn(function()
     vim.api.nvim_err_writeln(err)
     vim.cmd("cquit 1")
   else
-    vim.fn.writefile({ "PASS" }, vim.env.I18N_TEST_RESULT)
+    vim.fn.writefile(
+      { ("PASS: real UI, language switching, teardown; %d UI labels audited"):format(coverage_count) },
+      vim.env.I18N_TEST_RESULT
+    )
     vim.cmd("qa!")
   end
 end, 100)
